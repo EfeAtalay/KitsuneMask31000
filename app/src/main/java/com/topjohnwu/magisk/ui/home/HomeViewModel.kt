@@ -15,7 +15,10 @@ import com.topjohnwu.magisk.arch.ContextExecutor
 import com.topjohnwu.magisk.arch.UIActivity
 import com.topjohnwu.magisk.arch.ViewEvent
 import com.topjohnwu.magisk.core.Config
+import com.topjohnwu.magisk.core.Const
 import com.topjohnwu.magisk.core.Info
+import com.topjohnwu.magisk.core.di.ServiceLocator
+import com.topjohnwu.magisk.core.utils.RootUtils
 import com.topjohnwu.magisk.core.download.Subject
 import com.topjohnwu.magisk.core.download.Subject.App
 import com.topjohnwu.magisk.core.ktx.await
@@ -29,6 +32,8 @@ import com.topjohnwu.magisk.dialog.UninstallDialog
 import com.topjohnwu.magisk.events.SnackbarEvent
 import com.topjohnwu.magisk.utils.asText
 import com.topjohnwu.superuser.Shell
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 class HomeViewModel(
@@ -84,6 +89,14 @@ class HomeViewModel(
         it.put(BR.viewModel, this)
     }
 
+    @get:Bindable
+    var moduleCount = 0
+        private set(value) = set(value, field, { field = it }, BR.moduleCount)
+
+    @get:Bindable
+    var superuserCount = 0
+        private set(value) = set(value, field, { field = it }, BR.superuserCount)
+
     companion object {
         private var checkedEnv = false
     }
@@ -105,6 +118,13 @@ class HomeViewModel(
             managerRemoteVersion = R.string.not_available.asText()
         }
         ensureEnv()
+        moduleCount = withContext(Dispatchers.IO) {
+            if (!Info.env.isActive) 0
+            else RootUtils.fs.getFile(Const.MAGISK_PATH).listFiles()
+                .orEmpty()
+                .count { !it.isFile && !it.isHidden }
+        }
+        superuserCount = runCatching { ServiceLocator.policyDB.fetchAll().size }.getOrDefault(0)
     }
 
     override fun onNetworkChanged(network: Boolean) = startLoading()

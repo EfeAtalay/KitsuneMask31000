@@ -7,10 +7,6 @@
 
         <import type="com.topjohnwu.magisk.core.Info" />
 
-        <import type="com.topjohnwu.magisk.ui.home.DeveloperItem" />
-
-        <import type="com.topjohnwu.magisk.ui.home.IconLink" />
-
         <variable
             name="viewModel"
             type="com.topjohnwu.magisk.ui.home.HomeViewModel" />
@@ -29,168 +25,143 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="@dimen/l1">
-
-            <Button
-                style="@style/WidgetFoundation.Button"
-                gone="@{!viewModel.showTest}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:onClick="@{() -> viewModel.onTestPressed()}"
-                android:text="TEST"
-                android:textAllCaps="false"
-                tools:visibility="gone" />
+            android:paddingStart="20dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="12dp">
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/WidgetFoundation.Card.Shadowless"
                 goneUnless="@{viewModel.noticeVisible}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/l1"
-                android:layout_marginEnd="@dimen/l1"
-                android:layout_marginBottom="@dimen/l1"
-                app:cardBackgroundColor="@color/color_card_background_color_selector"
-                android:focusable="false">
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/color_card_background_color_selector">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    goneUnless="@{viewModel.noticeVisible}"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/l1"
-                    android:layout_marginEnd="@dimen/l1"
-                    android:layout_marginBottom="@dimen/l1"
-                    android:focusable="false">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
 
                     <TextView
-                        android:id="@+id/home_notice_content"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:padding="@dimen/l1"
-                        android:text="@string/home_notice_content"
-                        app:layout_constraintEnd_toStartOf="@+id/home_notice_hide"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:layout_weight="1"
+                        android:text="@string/home_notice_content" />
 
                     <Button
-                        android:id="@+id/home_notice_hide"
                         style="@style/WidgetFoundation.Button.Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:onClick="@{() -> viewModel.hideNotice()}"
                         android:text="@string/hide"
-                        android:textAllCaps="false"
-                        android:layout_marginEnd="10dp"
-                        android:backgroundTint="@android:color/transparent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:textAllCaps="false" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
-            <include
-                android:id="@+id/home_magisk_wrapper"
-                layout="@layout/include_home_magisk"
-                viewModel="@{viewModel}"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/l1"
-                android:layout_marginEnd="@dimen/l1"
-                app:layout_constraintTop_toBottomOf="@+id/home_device_wrapper" />
-
-            <include
-                android:id="@+id/home_manager_wrapper"
-                layout="@layout/include_home_manager"
-                viewModel="@{viewModel}"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/l1"
-                android:layout_marginTop="@dimen/l1"
-                android:layout_marginEnd="@dimen/l1"
-                app:layout_constraintTop_toBottomOf="@+id/home_magisk_wrapper" />
-
-            <Button
-                goneUnless="@{Info.env.isActive}"
-                style="@style/WidgetFoundation.Button.Error"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:elevation="@dimen/btn_highlight"
-                android:onClick="@{() -> viewModel.onDeletePressed()}"
-                android:text="@string/uninstall_magisk_title"
-                android:textAllCaps="false"
-                android:textSize="14sp"
-                app:cornerRadius="10dp"
-                android:layout_marginStart="@dimen/l1"
-                android:layout_marginEnd="@dimen/l1"
-                android:layout_marginTop="@dimen/l1"
-                app:iconSize="24sp"
-                app:icon="@drawable/ic_delete_md2" />
 
             <com.google.android.material.card.MaterialCardView
-                style="@style/WidgetFoundation.Card.Shadowless"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_marginStart="@dimen/l1"
-                android:layout_marginEnd="@dimen/l1"
-                android:layout_marginTop="@dimen/l1"
-                app:cardBackgroundColor="@color/color_card_background_color_selector"
-                android:focusable="false">
+                app:cardBackgroundColor="?android:colorBackground"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="6dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="@dimen/l1"
-                    android:paddingBottom="@dimen/l1"
-                    android:layout_gravity="bottom"
-                    android:layout_marginStart="@dimen/l1"
-                    android:layout_marginEnd="@dimen/l1"
-                    android:layout_marginTop="@dimen/l1"
-                    android:focusable="false">
+                    android:orientation="vertical">
 
-                    <TextView
+                    <include
+                        android:id="@+id/home_magisk_wrapper"
+                        layout="@layout/include_home_magisk"
+                        viewModel="@{viewModel}"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/l1"
-                        android:layout_marginEnd="@dimen/l1"
-                        android:text="@string/home_support_title"
-                        android:textAppearance="@style/AppearanceFoundation.Title" />
+                        android:layout_height="wrap_content" />
 
-                    <TextView
+                    <include
+                        android:id="@+id/home_manager_wrapper"
+                        layout="@layout/include_home_manager"
+                        viewModel="@{viewModel}"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/l1"
-                        android:layout_marginTop="@dimen/l_50"
-                        android:layout_marginEnd="@dimen/l1"
-                        android:text="@string/home_support_content"
-                        android:textAppearance="@style/AppearanceFoundation.Caption.Variant" />
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="88dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
 
                     <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="#6D797F"
+                        android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingTop="@dimen/l_50" >
+                        android:paddingStart="18dp"
+                        android:paddingEnd="12dp">
 
-                        <include
-                            item="@{IconLink.Patreon.INSTANCE}"
-                            layout="@layout/item_icon_link"
-                            viewModel="@{viewModel}"
+                        <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:background="@drawable/bg_stat_pill"
+                            android:drawablePadding="8dp"
+                            android:drawableStart="@drawable/ic_module_md2"
+                            android:drawableTint="#FFFFFF"
+                            android:gravity="center_vertical"
+                            android:paddingStart="12dp"
+                            android:paddingTop="8dp"
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="8dp"
+                            android:text='@{viewModel.moduleCount + "  " + @string/modules}'
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            tools:text="0  Modules" />
 
-                        <include
-                            item="@{IconLink.PayPal.Project.INSTANCE}"
-                            layout="@layout/item_icon_link"
-                            viewModel="@{viewModel}"
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="#338F84"
+                        android:gravity="center_vertical|end"
+                        android:orientation="horizontal"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="18dp">
+
+                        <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                            android:background="@drawable/bg_stat_pill"
+                            android:drawableEnd="@drawable/ic_superuser_md2"
+                            android:drawablePadding="8dp"
+                            android:drawableTint="#FFFFFF"
+                            android:gravity="center_vertical"
+                            android:paddingStart="14dp"
+                            android:paddingTop="8dp"
+                            android:paddingEnd="12dp"
+                            android:paddingBottom="8dp"
+                            android:text='@{viewModel.superuserCount + "  " + @string/superuser}'
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            tools:text="0  Superuser" />
 
                     </LinearLayout>
 
@@ -198,83 +169,16 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                style="@style/WidgetFoundation.Card.Shadowless"
-                android:layout_width="match_parent"
+            <Button
+                style="@style/WidgetFoundation.Button.Text"
+                goneUnless="@{Info.env.isActive}"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_margin="@dimen/l1"
-                app:cardBackgroundColor="@color/color_card_background_color_selector"
-                android:focusable="false">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="@dimen/l1"
-                    android:layout_gravity="bottom"
-                    android:layout_margin="@dimen/l1"
-                    android:focusable="false">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/l1"
-                        android:layout_marginEnd="@dimen/l1"
-                        android:text="@string/home_follow_title"
-                        android:textAppearance="@style/AppearanceFoundation.Title" />
-
-                    <include
-                        item="@{DeveloperItem.John.INSTANCE}"
-                        layout="@layout/item_developer"
-                        viewModel="@{viewModel}"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/l_50" />
-
-                    <include
-                        item="@{DeveloperItem.Vvb.INSTANCE}"
-                        layout="@layout/item_developer"
-                        viewModel="@{viewModel}"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/l_50" />
-
-                    <include
-                        item="@{DeveloperItem.YU.INSTANCE}"
-                        layout="@layout/item_developer"
-                        viewModel="@{viewModel}"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/l_50" />
-
-                    <include
-                        item="@{DeveloperItem.Rikka.INSTANCE}"
-                        layout="@layout/item_developer"
-                        viewModel="@{viewModel}"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/l_50" />
-
-                    <include
-                        item="@{DeveloperItem.Canyie.INSTANCE}"
-                        layout="@layout/item_developer"
-                        viewModel="@{viewModel}"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/l_50" />
-
-                    <include
-                        item="@{DeveloperItem.Husky.INSTANCE}"
-                        layout="@layout/item_developer"
-                        viewModel="@{viewModel}"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/l_50" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:onClick="@{() -> viewModel.onDeletePressed()}"
+                android:text="@string/uninstall_magisk_title"
+                android:textAllCaps="false" />
 
         </LinearLayout>
 

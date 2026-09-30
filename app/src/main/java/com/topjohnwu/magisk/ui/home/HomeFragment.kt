@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.MenuProvider
+import com.topjohnwu.magisk.BuildConfig
 import com.topjohnwu.magisk.R
 import com.topjohnwu.magisk.arch.BaseFragment
 import com.topjohnwu.magisk.arch.viewModel
@@ -24,7 +25,7 @@ class HomeFragment : BaseFragment<FragmentHomeMd2Binding>(), MenuProvider {
 
     override fun onStart() {
         super.onStart()
-        activity?.setTitle(R.string.section_home)
+        activity?.setTitle(if (BuildConfig.STARDUST_UI) R.string.kitsune_mask else R.string.section_home)
         DownloadEngine.observeProgress(this, viewModel::onProgressUpdate)
     }
 
