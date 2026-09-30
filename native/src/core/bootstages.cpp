@@ -329,11 +329,19 @@ bool MagiskD::post_fs_data() const {
         disable_deny();
     } else {
         exec_common_scripts("post-fs-data");
+        db_settings dbs;
+        get_db_settings(dbs, ZYGISK_CONFIG);
+        zygisk_enabled = dbs[ZYGISK_CONFIG];
         initialize_denylist();
         handle_modules();
     }
 
-    if (zygisk_enabled) start_zygisk();
+    if (zygisk_enabled) {
+        start_zygisk();
+        // The app reads this marker. MuMu clears ZYGISK_ENABLED during specialize.
+        string flag = string(get_magisk_tmp()) + "/.zygisk_enabled";
+        close(xopen(flag.data(), O_CREAT | O_WRONLY | O_CLOEXEC | O_TRUNC, 0644));
+    }
 
 early_abort:
     load_modules();
@@ -363,4 +371,5 @@ void MagiskD::boot_complete() const {
     check_pkg_refresh();
     get_manager(0, nullptr, true);
 
+    reset_zygisk(true);
 }

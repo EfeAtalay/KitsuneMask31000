@@ -85,6 +85,10 @@ class ShellInit : Shell.Initializer() {
         Info.legacySAR = getBool("LEGACYSAR")
         Info.sulist = getBool("SULISTMODE")
         Info.isBootPatched = getBool("BOOTIMAGE_PATCHED")
+        if (shell.isRoot) {
+            Info.isZygiskEnabled = Info.isZygiskEnabled ||
+                ShellUtils.fastCmd(shell, "[ -f \"\$MAGISKTMP/.zygisk_enabled\" ] && echo 1") == "1"
+        }
 
         // Default presets
         Config.recovery = getBool("RECOVERYMODE")
