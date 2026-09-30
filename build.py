@@ -481,12 +481,18 @@ def build_apk(args, module):
         error(f"Build {module} failed!")
 
     build_type = build_type.lower()
-
-    apk = f"{module}-{build_type}.apk"
-    source = op.join(module, "build", "outputs", "apk", build_type, apk)
-    target = op.join(config["outdir"], apk)
-    mv(source, target)
-    header("Output: " + target)
+    out_root = op.join(module, "build", "outputs", "apk")
+    found = []
+    for root, _, files in os.walk(out_root):
+        for name in files:
+            if name.startswith(f"{module}-") and name.endswith(f"-{build_type}.apk"):
+                found.append(op.join(root, name))
+    if not found:
+        error(f"Build {module} produced no {build_type} APK")
+    for source in found:
+        target = op.join(config["outdir"], op.basename(source))
+        mv(source, target)
+        header("Output: " + target)
 
 
 def build_app(args):

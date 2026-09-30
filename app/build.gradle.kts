@@ -40,6 +40,20 @@ android {
         }
     }
 
+    flavorDimensions += "ui"
+    productFlavors {
+        create("classic") {
+            dimension = "ui"
+            isDefault = true
+            buildConfigField("boolean", "STARDUST_UI", "false")
+        }
+        create("stardust") {
+            dimension = "ui"
+            versionNameSuffix = "-stardust"
+            buildConfigField("boolean", "STARDUST_UI", "true")
+        }
+    }
+
     buildFeatures {
         dataBinding = true
         aidl = true
