@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="recyclerScrollListener" type="id" />
+    <item name="log_tab_magisk" type="id" />
+    <item name="log_tab_su" type="id" />
+    <item name="log_save" type="id" />
 </resources>

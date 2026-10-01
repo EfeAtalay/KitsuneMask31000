@@ -11,49 +11,107 @@
 
     </data>
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/internal_action_bar_size"
+        app:fitsSystemWindowsInsets="top|bottom">
 
-        <include
-            android:id="@+id/log_filter_magisk"
-            layout="@layout/include_log_magisk"
-            viewModel="@{viewModel}"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/log_filter_toggle"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginStart="@dimen/l1"
-            android:elevation="@dimen/btn_highlight"
-            android:layout_marginEnd="@dimen/l1"
-            android:layout_marginBottom="64dp"
-            app:layout_fitsSystemWindowsInsets="bottom"
-            app:srcCompat="@drawable/ic_folder_list"
-            tools:layout_marginBottom="64dp" />
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp">
 
-        <com.google.android.material.circularreveal.cardview.CircularRevealCardView
-            android:id="@+id/log_filter"
-            style="@style/WidgetFoundation.Card"
-            app:cardBackgroundColor="?colorSurface"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/log_tab_magisk"
+                style="@style/Widget.Material3.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="@string/log_magisk_title"
+                android:textAllCaps="false"
+                android:textColor="?colorOnPrimary"
+                app:backgroundTint="?colorPrimary"
+                app:cornerRadius="24dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/log_tab_su"
+                style="@style/Widget.Material3.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="@string/log_superuser_title"
+                android:textAllCaps="false"
+                android:textColor="?colorOnSurface"
+                app:backgroundTint="?colorSurfaceVariant"
+                app:cornerRadius="24dp" />
+
+        </LinearLayout>
+
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="bottom"
-            android:visibility="invisible"
-            app:cardCornerRadius="0dp">
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_log_panel">
 
             <include
-                android:id="@+id/log_filter_superuser"
-                layout="@layout/include_log_superuser"
+                android:id="@+id/log_filter_magisk"
+                layout="@layout/include_log_magisk"
                 viewModel="@{viewModel}"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-        </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
+            <com.google.android.material.circularreveal.cardview.CircularRevealCardView
+                android:id="@+id/log_filter"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible"
+                app:cardBackgroundColor="?colorSurface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
 
-    </FrameLayout>
+                <include
+                    android:id="@+id/log_filter_superuser"
+                    layout="@layout/include_log_superuser"
+                    viewModel="@{viewModel}"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/log_filter_toggle"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_folder_list" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/log_save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="16dp"
+                app:backgroundTint="?colorPrimary"
+                app:srcCompat="@drawable/ic_save_md2"
+                app:tint="?colorOnPrimary" />
+
+        </FrameLayout>
+
+    </LinearLayout>
 
 </layout>

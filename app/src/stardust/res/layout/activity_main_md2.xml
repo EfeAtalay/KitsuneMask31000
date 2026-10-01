@@ -18,33 +18,19 @@
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
-        <com.google.android.material.card.MaterialCardView
+        <com.google.android.material.navigationrail.NavigationRailView
+            android:id="@+id/main_navigation"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="?colorSurface"
-            app:cardCornerRadius="28dp"
-            app:cardElevation="0dp"
-            app:strokeColor="?colorPrimary"
-            app:strokeWidth="1dp">
-
-            <com.google.android.material.navigationrail.NavigationRailView
-                android:id="@+id/main_navigation"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:minWidth="88dp"
-                app:itemPaddingBottom="6dp"
-                app:itemPaddingTop="6dp"
-                app:labelVisibilityMode="labeled"
-                app:menu="@menu/menu_bottom_nav"
-                app:menuGravity="center"
-                app:paddingBottomSystemWindowInsets="true"
-                app:paddingTopSystemWindowInsets="true" />
-
-        </com.google.android.material.card.MaterialCardView>
+            android:background="?colorSurface"
+            android:minWidth="88dp"
+            app:itemPaddingBottom="6dp"
+            app:itemPaddingTop="6dp"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/menu_bottom_nav"
+            app:menuGravity="center"
+            app:paddingBottomSystemWindowInsets="true"
+            app:paddingTopSystemWindowInsets="true" />
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="0dp"

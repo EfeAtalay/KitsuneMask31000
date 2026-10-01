@@ -86,6 +86,8 @@
     <string name="log_data_none">You\'re log-free, try using your root apps more</string>
     <string name="log_data_magisk_none">Magisk logs are empty, that\'s weird</string>
     <string name="menuSaveLog">Save log</string>
+    <string name="log_magisk_title">Magisk Log</string>
+    <string name="log_superuser_title">Superuser Log</string>
     <string name="menuClearLog">Clear log now</string>
     <string name="logs_cleared">Log successfully cleared</string>
     <string name="pid">PID: %1$d</string>
