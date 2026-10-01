@@ -29,6 +29,8 @@ object Info {
     var legacySAR = false
     var isAB = false
     @JvmField var isZygiskEnabled = System.getenv("ZYGISK_ENABLED") == "1"
+    @JvmField var externalZygisk = false
+    @JvmField var zygiskActive = isZygiskEnabled
     @JvmStatic val isFDE get() = crypto == "block"
     @JvmField var ramdisk = false
     var patchBootVbmeta = false

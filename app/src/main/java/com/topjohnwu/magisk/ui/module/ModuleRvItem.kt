@@ -37,8 +37,8 @@ class LocalModuleRvItem(
         val zygiskUnloaded = isZygisk && item.zygiskUnloaded
 
         showNotice = zygiskUnloaded ||
-            (Info.isZygiskEnabled && isRiru) ||
-            (!Info.isZygiskEnabled && isZygisk)
+            (Info.zygiskActive && isRiru) ||
+            (!Info.zygiskActive && isZygisk)
         showAction = item.hasAction && !showNotice
         noticeText =
             when {

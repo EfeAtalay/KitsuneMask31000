@@ -431,6 +431,14 @@ static void new_zygote(int pid) {
     if (zygote_map.count(pid))
         return;
 
+    if (!zygisk_enabled) {
+        // ReZygisk and Zygisk Next have to ptrace zygote. A second tracer
+        // stops their hook from running in newly forked apps.
+        LOGI("proc_monitor: leave zygote PID=[%d] to external zygisk\n", pid);
+        zygote_map[pid] = st;
+        return;
+    }
+
     LOGI("proc_monitor: zygote PID=[%d]\n", pid);
 
     // attach_zygote

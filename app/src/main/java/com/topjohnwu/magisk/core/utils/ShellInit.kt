@@ -88,6 +88,12 @@ class ShellInit : Shell.Initializer() {
         if (shell.isRoot) {
             Info.isZygiskEnabled = Info.isZygiskEnabled ||
                 ShellUtils.fastCmd(shell, "[ -f \"\$MAGISKTMP/.zygisk_enabled\" ] && echo 1") == "1"
+            Info.externalZygisk = !Info.isZygiskEnabled && ShellUtils.fastCmd(
+                shell,
+                "if pidof zygiskd64 zygiskd32 zygisk-ptrace64 zygisk-ptrace32 >/dev/null 2>&1; then echo 1; " +
+                    "elif [ -S /data/adb/rezygisk/cp64.sock ] || [ -S /data/adb/rezygisk/cp32.sock ]; then echo 1; fi"
+            ) == "1"
+            Info.zygiskActive = Info.isZygiskEnabled || Info.externalZygisk
         }
 
         // Default presets

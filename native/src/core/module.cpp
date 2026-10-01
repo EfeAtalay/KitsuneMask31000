@@ -561,12 +561,9 @@ static void collect_modules(bool open_zygisk) {
 #endif
                 unlinkat(modfd, "zygisk/unloaded", 0);
             }
-        } else {
-            // Ignore zygisk modules when zygisk is not enabled
-            if (faccessat(modfd, "zygisk", F_OK, 0) == 0) {
-                LOGI("%s: ignore\n", entry->d_name);
-                return;
-            }
+        } else if (faccessat(modfd, "zygisk", F_OK, 0) == 0) {
+            // Built-in Zygisk is off. Keep the module on disk for ReZygisk / Zygisk Next.
+            unlinkat(modfd, "zygisk/unloaded", 0);
         }
         if (!open_zygisk) { // Load sepolicy.rule if possible
             string module_mnt_dir = string(get_magisk_tmp()) + "/" MODULEMNT "/" + entry->d_name;
@@ -594,6 +591,13 @@ static void collect_modules(bool open_zygisk) {
                          cp_afc(module_rulefile.data(), string(module_rule + "/sepolicy.rule").data());
                 }
             }
+        }
+        // ReZygisk and Zygisk Next replay these scripts themselves.
+        // Keep the module mounted, but do not run the scripts a second time.
+        if (!zygisk_enabled && !open_zygisk &&
+            faccessat(modfd, "zygisk", F_OK, 0) == 0) {
+            LOGI("%s: external zygisk\n", entry->d_name);
+            return;
         }
         info.name = entry->d_name;
         module_list->push_back(info);
@@ -679,7 +683,13 @@ void remove_modules() {
 
 void exec_module_scripts(const char *stage) {
     vector<string_view> module_names;
-    std::transform(module_list->begin(), module_list->end(), std::back_inserter(module_names),
-        [](const module_info &info) -> string_view { return info.name; });
+    for (const auto &info : *module_list) {
+        if (!zygisk_enabled) {
+            string zygisk_dir = MODULEROOT + "/"s + info.name + "/zygisk";
+            if (access(zygisk_dir.data(), F_OK) == 0)
+                continue;
+        }
+        module_names.emplace_back(info.name);
+    }
     exec_module_scripts(stage, module_names);
 }

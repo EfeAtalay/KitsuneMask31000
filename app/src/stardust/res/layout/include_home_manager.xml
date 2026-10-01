@@ -136,7 +136,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text='@{Info.isZygiskEnabled ? @string/zygisk + " " + @string/yes : @string/zygisk + " " + @string/no}'
+            android:text='@{Info.zygiskActive ? @string/zygisk + " " + @string/yes : @string/zygisk + " " + @string/no}'
             android:textColor="?android:textColorSecondary"
             android:textSize="12sp"
             tools:text="Zygisk Yes" />

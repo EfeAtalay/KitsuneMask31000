@@ -139,7 +139,7 @@
 
                             <TextView
                                 style="@style/W.Home.ItemContent.Right"
-                                android:text="@{Info.isZygiskEnabled ? @string/yes : @string/no}"
+                                android:text="@{Info.zygiskActive ? @string/yes : @string/no}"
                                 tools:text="Yes" />
 
                         </LinearLayout>
