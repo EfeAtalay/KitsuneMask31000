@@ -5,7 +5,7 @@
     <string name="magisk" translatable="false">Magisk</string>
     <string name="zygisk" translatable="false">Zygisk</string>
     <string name="open_webui" translatable="false">WebUI</string>
-    <string name="module_repo_source" translatable="false">Magisk Modules Alt Repo</string>
+    <string name="module_repo_source" translatable="false">Googlers · Alt Repo · Official</string>
     <string name="kitsune_mask" translatable="false">Kitsune Mask</string>
     <string name="home_brand" translatable="false">Kitsune</string>
     <string name="home_not_installed" translatable="false">Not Installed</string>

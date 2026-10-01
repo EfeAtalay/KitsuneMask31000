@@ -90,11 +90,12 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
                     zipUrl = row.zipUrl,
                     notesUrl = row.notesUrl,
                     stars = row.stars,
-                    name = cached?.name?.takeIf { it.isNotBlank() } ?: row.id,
-                    author = cached?.author.orEmpty(),
-                    version = cached?.version.orEmpty(),
-                    versionCode = cached?.versionCode ?: -1,
-                    description = cached?.description.orEmpty(),
+                    name = row.name.ifBlank { cached?.name?.takeIf { it.isNotBlank() } ?: row.id },
+                    author = row.author.ifBlank { cached?.author.orEmpty() },
+                    version = row.version.ifBlank { cached?.version.orEmpty() },
+                    versionCode = if (row.versionCode >= 0) row.versionCode else cached?.versionCode ?: -1,
+                    description = row.description.ifBlank { cached?.description.orEmpty() },
+                    source = row.source,
                 )
                 RepoModuleRvItem(module, row.id in installed)
             }
@@ -256,9 +257,30 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
             .toSet()
     }
 
-    private suspend fun fetchIndex(): List<IndexRow> {
-        val text = ServiceLocator.networkService.fetchString(INDEX_URL)
-        val arr = JSONObject(text).optJSONArray("modules") ?: throw IOException("empty index")
+    private suspend fun fetchIndex(): List<IndexRow> = coroutineScope {
+        val jobs = REPOS.map { repo ->
+            async(Dispatchers.IO) {
+                runCatching { fetchRepo(repo) }
+                    .onFailure { Timber.w(it, "repo %s", repo.name) }
+                    .getOrDefault(emptyList())
+            }
+        }
+        val featured = async(Dispatchers.IO) { fetchFeatured() }
+        val merged = mergeRows(jobs.awaitAll().flatten() + featured.await())
+        if (merged.isEmpty()) throw IOException("empty index")
+        merged
+    }
+
+    private suspend fun fetchRepo(repo: RepoSource): List<IndexRow> {
+        val text = ServiceLocator.networkService.fetchString(repo.url)
+        return when (repo.kind) {
+            RepoKind.ALT -> parseAlt(text, repo.name)
+            RepoKind.MMRL -> parseMmrl(text, repo.name)
+        }
+    }
+
+    private fun parseAlt(text: String, source: String): List<IndexRow> {
+        val arr = JSONObject(text).optJSONArray("modules") ?: return emptyList()
         val rows = ArrayList<IndexRow>(arr.length())
         for (i in 0 until arr.length()) {
             val obj = arr.optJSONObject(i) ?: continue
@@ -272,10 +294,135 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
                 zipUrl = zip,
                 notesUrl = obj.optString("notes_url"),
                 stars = obj.optInt("stars"),
+                source = source,
             )
         }
-        if (rows.isEmpty()) throw IOException("empty index")
         return rows
+    }
+
+    private fun parseMmrl(text: String, source: String): List<IndexRow> {
+        val arr = JSONObject(text).optJSONArray("modules") ?: return emptyList()
+        val rows = ArrayList<IndexRow>(arr.length())
+        for (i in 0 until arr.length()) {
+            val obj = arr.optJSONObject(i) ?: continue
+            if (!isMagiskCompatible(obj)) continue
+            val id = obj.optString("id")
+            val latest = latestVersion(obj.optJSONArray("versions")) ?: continue
+            val zip = latest.optString("zipUrl")
+            if (id.isBlank() || !zip.startsWith("https://")) continue
+            rows += IndexRow(
+                id = id,
+                lastUpdate = unixMillis(obj.optDouble("timestamp")),
+                zipUrl = zip,
+                notesUrl = latest.optString("changelog"),
+                stars = obj.optInt("stars"),
+                name = obj.optString("name"),
+                author = obj.optString("author"),
+                version = latest.optString("version").ifBlank { obj.optString("version") },
+                versionCode = latest.optInt("versionCode", obj.optInt("versionCode", -1)),
+                description = obj.optString("description"),
+                source = source,
+            )
+        }
+        return rows
+    }
+
+    private suspend fun fetchFeatured(): List<IndexRow> = coroutineScope {
+        FEATURED.map { module ->
+            async(Dispatchers.IO) {
+                runCatching {
+                    val json = JSONObject(ServiceLocator.networkService.fetchString(module.updateUrl))
+                    val zip = json.optString("zipUrl")
+                    if (!zip.startsWith("https://")) return@runCatching null
+                    IndexRow(
+                        id = module.id,
+                        lastUpdate = System.currentTimeMillis(),
+                        zipUrl = zip,
+                        notesUrl = json.optString("changelog"),
+                        stars = 0,
+                        name = module.name,
+                        author = module.author,
+                        version = json.optString("version"),
+                        versionCode = json.optInt("versionCode", -1),
+                        description = module.description,
+                        source = SOURCE_OFFICIAL,
+                        official = true,
+                    )
+                }.onFailure { Timber.w(it, "featured %s", module.id) }.getOrNull()
+            }
+        }.awaitAll().filterNotNull()
+    }
+
+    private fun mergeRows(rows: List<IndexRow>): List<IndexRow> {
+        val merged = LinkedHashMap<String, IndexRow>()
+        for (row in rows) {
+            val previous = merged[row.id]
+            merged[row.id] = if (previous == null) row else prefer(previous, row)
+        }
+        return merged.values.toList()
+    }
+
+    private fun prefer(current: IndexRow, candidate: IndexRow): IndexRow {
+        val winner = when {
+            candidate.versionCode > current.versionCode -> candidate
+            current.versionCode > candidate.versionCode && current.versionCode > 0 -> current
+            candidate.official && !current.official -> candidate
+            else -> current
+        }
+        val other = if (winner === candidate) current else candidate
+        return winner.copy(
+            stars = maxOf(current.stars, candidate.stars),
+            name = winner.name.ifBlank { other.name },
+            author = winner.author.ifBlank { other.author },
+            description = winner.description.ifBlank { other.description },
+            propUrl = winner.propUrl.ifBlank { other.propUrl },
+            notesUrl = winner.notesUrl.ifBlank { other.notesUrl },
+        )
+    }
+
+    private fun latestVersion(versions: JSONArray?): JSONObject? {
+        if (versions == null || versions.length() == 0) return null
+        var best: JSONObject? = null
+        for (i in 0 until versions.length()) {
+            val version = versions.optJSONObject(i) ?: continue
+            if (!version.optString("zipUrl").startsWith("https://")) continue
+            if (best == null ||
+                version.optInt("versionCode") > best.optInt("versionCode") ||
+                (version.optInt("versionCode") == best.optInt("versionCode") &&
+                    version.optDouble("timestamp") > best.optDouble("timestamp"))
+            ) best = version
+        }
+        return best
+    }
+
+    private fun isMagiskCompatible(obj: JSONObject): Boolean {
+        val text = (obj.optString("name") + " " + obj.optString("description")).lowercase(Locale.ROOT)
+        if (text.contains("kernelsu only") || text.contains("apatch only") ||
+            text.contains("not for magisk") || text.contains("not compatible with magisk")
+        ) return false
+        val permissions = obj.optJSONArray("permissions")
+        val manager = obj.optJSONObject("manager")
+        val root = obj.optJSONObject("root")
+        val declaresMagisk = manager?.has("magisk") == true || root?.has("magisk") == true
+        if (permissions == null || permissions.length() == 0) return true
+        var magisk = declaresMagisk
+        var otherRoot = false
+        for (i in 0 until permissions.length()) {
+            val permission = permissions.optString(i)
+            when {
+                permission.startsWith("magisk.") -> magisk = true
+                permission.startsWith("kernelsu.") ||
+                    permission.startsWith("apatch.") ||
+                    permission.startsWith("ksu.") -> otherRoot = true
+            }
+        }
+        if (magisk) return true
+        return !otherRoot
+    }
+
+    private fun unixMillis(raw: Double): Long {
+        if (raw <= 0.0) return 0L
+        return if (raw < 10_000_000_000.0) (raw * 1000.0).toLong() else raw.toLong()
     }
 
     private fun readCache(): Map<String, RepoModule> {
@@ -368,15 +515,75 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
     private data class IndexRow(
         val id: String,
         val lastUpdate: Long,
-        val propUrl: String,
+        val propUrl: String = "",
         val zipUrl: String,
-        val notesUrl: String,
-        val stars: Int,
+        val notesUrl: String = "",
+        val stars: Int = 0,
+        val name: String = "",
+        val author: String = "",
+        val version: String = "",
+        val versionCode: Int = -1,
+        val description: String = "",
+        val source: String = "",
+        val official: Boolean = false,
+    )
+
+    private enum class RepoKind { ALT, MMRL }
+
+    private data class RepoSource(val name: String, val url: String, val kind: RepoKind)
+
+    private data class FeaturedModule(
+        val id: String,
+        val name: String,
+        val author: String,
+        val description: String,
+        val updateUrl: String,
     )
 
     companion object {
-        private const val INDEX_URL =
-            "https://raw.githubusercontent.com/Magisk-Modules-Alt-Repo/json/main/modules.json"
+        private const val SOURCE_OFFICIAL = "Official"
         private const val MAX_DOWNLOAD = 80L * 1024L * 1024L
+        private val REPOS = listOf(
+            RepoSource(
+                "Googlers",
+                "https://gr.dergoogler.com/gmr/json/modules.json",
+                RepoKind.MMRL,
+            ),
+            RepoSource(
+                "Alt Repo",
+                "https://raw.githubusercontent.com/Magisk-Modules-Alt-Repo/json/main/modules.json",
+                RepoKind.ALT,
+            ),
+        )
+        private val FEATURED = listOf(
+            FeaturedModule(
+                "zygisksu",
+                "Zygisk Next",
+                "5ec1cff, Nullptr, aviraxp",
+                "Standalone Zygisk for Magisk. Turn the built-in Zygisk switch off before use.",
+                "https://api.nullptr.icu/android/zygisk-next/static/update.json",
+            ),
+            FeaturedModule(
+                "rezygisk",
+                "ReZygisk",
+                "PerformanC",
+                "Standalone Zygisk for Magisk. Turn the built-in Zygisk switch off before use.",
+                "https://raw.githubusercontent.com/ThePedroo/RemoteFiles/refs/heads/main/ReZygisk/update.json",
+            ),
+            FeaturedModule(
+                "zygisk_vector",
+                "Vector",
+                "JingMatrix",
+                "Xposed-compatible framework for Magisk Zygisk.",
+                "https://raw.githubusercontent.com/JingMatrix/Vector/master/zygisk/update.json",
+            ),
+            FeaturedModule(
+                "playintegrityfix",
+                "Play Integrity Fork",
+                "osm0sis",
+                "Magisk module for Play Integrity. Replaces the unmaintained Play Integrity Fix.",
+                "https://raw.githubusercontent.com/osm0sis/PlayIntegrityFork/main/update.json",
+            ),
+        )
     }
 }

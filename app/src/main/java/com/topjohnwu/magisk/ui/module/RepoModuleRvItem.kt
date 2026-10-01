@@ -19,6 +19,7 @@ class RepoModule(
     var version: String = "",
     var versionCode: Int = -1,
     var description: String = "",
+    var source: String = "",
 )
 
 class RepoModuleRvItem(
@@ -42,7 +43,8 @@ class RepoModuleRvItem(
     @get:Bindable
     val subtitle: String
         get() {
-            val parts = listOf(module.version, module.author).filter { it.isNotBlank() }
+            val parts = listOf(module.version, module.author, module.source)
+                .filter { it.isNotBlank() }
             return parts.joinToString(" · ").ifBlank { module.id }
         }
 
