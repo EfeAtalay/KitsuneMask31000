@@ -13,64 +13,60 @@
 
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:consumeSystemWindowsInsets="start|end"
-        app:edgeToEdge="true"
-        app:fitsSystemWindowsInsets="start|end"
-        tools:ignore="RtlHardcoded">
+        android:orientation="horizontal">
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/main_nav_host"
-            android:name="androidx.navigation.fragment.NavHostFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="30dp"
-            app:defaultNavHost="true"
-            app:navGraph="@navigation/main" />
-
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/main_toolbar_wrapper"
-            style="@style/WidgetFoundation.Appbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:elevation="0dp"
-            app:elevation="0dp"
-            app:fitsSystemWindowsInsets="top">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/main_toolbar"
-                style="@style/WidgetFoundation.Toolbar"
-                android:layout_width="match_parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_scrollFlags="noScroll"
-                app:subtitleTextAppearance="@style/AppearanceFoundation.Body"
-                app:titleTextAppearance="@style/AppearanceFoundation.Title"
-                tools:layout_marginTop="24dp"
-                tools:title="Home" />
-
-        </com.google.android.material.appbar.AppBarLayout>
-
-
-        <com.topjohnwu.magisk.widget.ConcealableBottomNavigationView
+        <com.google.android.material.navigationrail.NavigationRailView
             android:id="@+id/main_navigation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:fitsSystemWindows="false"
-            android:paddingBottom="0dp"
-            app:fitsSystemWindowsInsets="start|end|bottom"
-            app:backgroundTint="?colorSurface"
-            app:elevation="8dp"
-            app:itemHorizontalTranslationEnabled="false"
-            app:itemTextAppearanceActive="@style/AppearanceFoundation.Body"
-            app:itemTextAppearanceInactive="@style/AppearanceFoundation.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?colorSurface"
             app:labelVisibilityMode="labeled"
-            app:menu="@menu/menu_bottom_nav" />
+            app:menu="@menu/menu_bottom_nav"
+            app:paddingBottomSystemWindowInsets="true"
+            app:paddingTopSystemWindowInsets="true" />
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:consumeSystemWindowsInsets="start|end"
+            app:edgeToEdge="true"
+            app:fitsSystemWindowsInsets="start|end"
+            tools:ignore="RtlHardcoded">
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/main_nav_host"
+                android:name="androidx.navigation.fragment.NavHostFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:defaultNavHost="true"
+                app:navGraph="@navigation/main" />
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/main_toolbar_wrapper"
+                style="@style/WidgetFoundation.Appbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="0dp"
+                app:elevation="0dp"
+                app:fitsSystemWindowsInsets="top">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/main_toolbar"
+                    style="@style/WidgetFoundation.Toolbar"
+                    android:layout_width="match_parent"
+                    app:layout_scrollFlags="noScroll"
+                    app:subtitleTextAppearance="@style/AppearanceFoundation.Body"
+                    app:titleTextAppearance="@style/AppearanceFoundation.Title"
+                    tools:title="Kitsune Mask" />
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    </LinearLayout>
 
 </layout>

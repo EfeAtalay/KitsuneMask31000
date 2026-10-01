@@ -37,7 +37,10 @@ data class LocalModule(
     val isRiru: Boolean get() = (id == "riru-core") || riruFolder.exists()
     val isZygisk: Boolean get() = zygiskFolder.exists()
     val zygiskUnloaded: Boolean get() = unloaded.exists()
-    val hasAction: Boolean;
+    val hasAction: Boolean
+    private val webRoot = RootUtils.fs.getFile(path, "webroot")
+    val hasWebUi: Boolean get() = webRoot.isDirectory
+    val webRootPath: String get() = webRoot.path
 
     var enable: Boolean
         get() = !disableFile.exists()

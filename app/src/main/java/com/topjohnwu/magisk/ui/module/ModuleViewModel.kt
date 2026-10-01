@@ -27,7 +27,7 @@ import kotlinx.parcelize.Parcelize
 
 class ModuleViewModel : AsyncLoadViewModel() {
 
-    val bottomBarBarrierIds = intArrayOf(R.id.module_update, R.id.module_remove)
+    val bottomBarBarrierIds = intArrayOf(R.id.module_webui, R.id.module_update, R.id.module_remove)
 
     private val itemsInstalled = diffList<LocalModuleRvItem>()
 

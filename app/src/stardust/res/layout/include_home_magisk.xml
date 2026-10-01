@@ -16,7 +16,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_home_hero"
+        android:background="?colorPrimary"
         android:paddingStart="22dp"
         android:paddingTop="22dp"
         android:paddingEnd="22dp"
@@ -29,7 +29,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/home_brand"
-            android:textColor="#FFFFFF"
+            android:textColor="?colorOnPrimary"
             android:textSize="28sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/home_magisk_icon"
@@ -42,7 +42,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/magisk"
-            android:textColor="#F4F7F8"
+            android:textColor="?colorOnPrimary"
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/home_magisk_icon"
             app:layout_constraintStart_toStartOf="parent"
@@ -78,7 +78,7 @@
             android:paddingEnd="10dp"
             android:paddingBottom="4dp"
             android:text="@{viewModel.magiskInstalledVersion}"
-            android:textColor="#F4F7F8"
+            android:textColor="?colorOnPrimary"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/home_magisk_subtitle"
@@ -103,7 +103,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="#FFFFFF" />
+            app:tint="?colorOnPrimary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

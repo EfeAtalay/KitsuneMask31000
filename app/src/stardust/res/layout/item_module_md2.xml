@@ -154,9 +154,22 @@
                     app:icon="@drawable/ic_update_md2"
                     app:iconGravity="textEnd"
                     app:layout_constraintBottom_toBottomOf="@+id/module_remove"
-                    app:layout_constraintEnd_toStartOf="@+id/module_remove"
+                    app:layout_constraintEnd_toStartOf="@+id/module_webui"
                     app:layout_constraintTop_toTopOf="@+id/module_remove"
                     app:srcCompat="@drawable/ic_download_md2" />
+
+                <Button
+                    android:id="@+id/module_webui"
+                    style="@style/WidgetFoundation.Button.Text"
+                    goneUnless="@{item.hasWebUi}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{(v) -> item.openWebUi(v)}"
+                    android:text="@string/open_webui"
+                    android:textAllCaps="false"
+                    app:layout_constraintBottom_toBottomOf="@+id/module_remove"
+                    app:layout_constraintEnd_toStartOf="@+id/module_remove"
+                    app:layout_constraintTop_toTopOf="@+id/module_remove" />
 
                 <Button
                     android:id="@+id/module_remove"

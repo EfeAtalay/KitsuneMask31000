@@ -27,6 +27,7 @@ import com.topjohnwu.magisk.databinding.ActivityMainMd2Binding
 import com.topjohnwu.magisk.ui.home.HomeFragmentDirections
 import com.topjohnwu.magisk.view.MagiskDialog
 import com.topjohnwu.magisk.view.Shortcuts
+import com.topjohnwu.magisk.widget.ConcealableBottomNavigationView
 import java.io.File
 
 class MainViewModel : BaseViewModel()
@@ -132,7 +133,7 @@ class MainActivity : SplashActivity<ActivityMainMd2Binding>() {
 
     internal fun requestNavigationHidden(hide: Boolean = true, requiresAnimation: Boolean = true) {
         val bottomView = binding.mainNavigation
-        if (requiresAnimation) {
+        if (bottomView is ConcealableBottomNavigationView && requiresAnimation) {
             bottomView.isVisible = true
             bottomView.isHidden = hide
         } else {

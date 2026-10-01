@@ -69,6 +69,16 @@ class LocalModuleRvItem(
         notifyPropertyChanged(BR.updateReady)
     }
 
+    val hasWebUi get() = item.hasWebUi
+
+    fun openWebUi(view: android.view.View) {
+        view.context.startActivity(
+            android.content.Intent(view.context, WebUIActivity::class.java)
+                .putExtra(WebUIActivity.EXTRA_PATH, item.webRootPath)
+                .putExtra(WebUIActivity.EXTRA_NAME, item.name)
+        )
+    }
+
     fun delete() {
         isRemoved = !isRemoved
     }

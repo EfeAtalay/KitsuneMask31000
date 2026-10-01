@@ -68,7 +68,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="?android:colorBackground"
+                app:cardBackgroundColor="?colorSurface"
                 app:cardCornerRadius="28dp"
                 app:cardElevation="6dp">
 
@@ -102,70 +102,85 @@
                 app:cardCornerRadius="28dp"
                 app:cardElevation="0dp">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:layout_height="match_parent">
 
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="#6D797F"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingStart="18dp"
-                        android:paddingEnd="12dp">
+                        android:orientation="horizontal">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_stat_pill"
-                            android:drawablePadding="8dp"
-                            android:drawableStart="@drawable/ic_module_md2"
-                            android:drawableTint="#FFFFFF"
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="?colorSurfaceVariant"
                             android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="18dp"
+                            android:paddingEnd="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_stat_pill"
+                                android:drawablePadding="8dp"
+                                android:drawableStart="@drawable/ic_module_md2"
+                                android:drawableTint="?colorOnPrimary"
+                                android:gravity="center_vertical"
+                                android:paddingStart="12dp"
+                                android:paddingTop="8dp"
+                                android:paddingEnd="14dp"
+                                android:paddingBottom="8dp"
+                                android:text='@{viewModel.moduleCount + "  " + @string/modules}'
+                                android:textColor="?colorOnPrimary"
+                                android:textStyle="bold"
+                                tools:text="0  Modules" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="?colorPrimary"
+                            android:gravity="center_vertical|end"
+                            android:orientation="horizontal"
                             android:paddingStart="12dp"
-                            android:paddingTop="8dp"
-                            android:paddingEnd="14dp"
-                            android:paddingBottom="8dp"
-                            android:text='@{viewModel.moduleCount + "  " + @string/modules}'
-                            android:textColor="#FFFFFF"
-                            android:textStyle="bold"
-                            tools:text="0  Modules" />
+                            android:paddingEnd="18dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_stat_pill"
+                                android:drawableEnd="@drawable/ic_superuser_md2"
+                                android:drawablePadding="8dp"
+                                android:drawableTint="?colorOnPrimary"
+                                android:gravity="center_vertical"
+                                android:paddingStart="14dp"
+                                android:paddingTop="8dp"
+                                android:paddingEnd="12dp"
+                                android:paddingBottom="8dp"
+                                android:text='@{viewModel.superuserCount + "  " + @string/superuser}'
+                                android:textColor="?colorOnPrimary"
+                                android:textStyle="bold"
+                                tools:text="0  Superuser" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    <ImageView
+                        android:layout_width="72dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="#338F84"
-                        android:gravity="center_vertical|end"
-                        android:orientation="horizontal"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="18dp">
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/modules"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/stat_wave"
+                        app:tint="?colorPrimary" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_stat_pill"
-                            android:drawableEnd="@drawable/ic_superuser_md2"
-                            android:drawablePadding="8dp"
-                            android:drawableTint="#FFFFFF"
-                            android:gravity="center_vertical"
-                            android:paddingStart="14dp"
-                            android:paddingTop="8dp"
-                            android:paddingEnd="12dp"
-                            android:paddingBottom="8dp"
-                            android:text='@{viewModel.superuserCount + "  " + @string/superuser}'
-                            android:textColor="#FFFFFF"
-                            android:textStyle="bold"
-                            tools:text="0  Superuser" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
+                </FrameLayout>
 
             </com.google.android.material.card.MaterialCardView>
 
