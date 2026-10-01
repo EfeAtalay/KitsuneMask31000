@@ -1,32 +1,53 @@
-# Sunset Notice for KitsuneMagisk
+# Kitsune Mask 31.0
 
-Last update: August 24th, 2025
+Bu depo, Kitsune Magisk çizgisinin resmi olmayan devamıdır. Resmi Magisk değildir. Çekirdek ortaktır; yönetici uygulamasının iki hali vardır.
 
-## TL;DR
+Paket adı `io.github.huskydg.magisk`, sürüm kodu `31000`. Classic ve Stardust aynı anda kurulamaz. Biri diğerinin yerini alır. Release ve debug için de geçerlidir: kurulan paket öncekinin üzerine yazar.
 
-This project is entering archival due to technical roadblocks beyond the current resources of its sole maintainer (me) and general lack of free time. No further commits, reviews, or releases are planned. The GitHub repository will be archived read-only within the next few days.
+Güncel dosyalar: [v31.0-kitsune-31000](https://github.com/EfeAtalay/KitsuneMask31000/releases/tag/v31.0-kitsune-31000)
 
-## What does “archived” mean?
+| Dosya | Hali | Sürüm adı |
+| --- | --- | --- |
+| `Kitsune.Magisk.classic.release.v31.0-kitsune-31000.apk` | Classic, release | `31.0-kitsune` |
+| `Kitsune.Magisk.stardust.release.v31.0-kitsune-stardust-31000.apk` | Stardust, release | `31.0-kitsune-stardust` |
+| `Kitsune.Magisk.classic.debug.v31.0-kitsune-31000.apk` | Classic, debug | `31.0-kitsune` |
+| `Kitsune.Magisk.stardust.debug.v31.0-kitsune-stardust-31000.apk` | Stardust, debug | `31.0-kitsune-stardust` |
 
-The repo will become read-only.
-All issues and PRs will remain visible for historical purposes but will not be triaged.
-The website, wiki, and downloads will stay up with no promise of future updates or security fixes.
+Günlük kullanım için release paketleri yeter. Debug paketleri hata ayıklama açıktır.
 
-## License remains absolutely unchanged
+Cihaz zaten köklüyse uygulamadan Direct Install ile kurup yeniden başlatın. İki arayüz aynı Magisk çekirdeğini taşır. Fark, yöneticinin ekranlarındadır.
 
-The project continues to be licensed under the GNU General Public License v3.0-or-later (GPL-3.0-or-later).
-Nothing in this notice constitutes a relicensing.
+## Classic
 
-## Important warnings about future variants
+Classic, Kitsune’nin alışılmış yönetici arayüzüdür. Ana sayfa, modüller, süper kullanıcı listesi ve ayarlar bu düzendedir. Tema paleti, yan ray ve Stardust’a özel düğmeler bu pakette yoktur.
 
-This project will **NOT** be re-released under any proprietary or closed-source license.
-I will **NOT** grant anyone permission to use any part of the code in a way that violates GPLv3-or-later.
-Any subsequent distribution showing up as a closed-source binary or obfuscated fork is **unauthorized** and considered a **counterfeit**.
-– Such builds may contain **trojans, spyware, adware, or other malicious software**.
-– **Use them at your own risk—we strongly recommend you avoid them.**
+Sürüm adı `31.0-kitsune`. Modül kurma, kök politikası ve Magisk kurulumu Classic ekranlardan yapılır. Çekirdek kurulumundan sonra DenyList ve SuList kuralları cihazda geçerlidir; bu kuralların yeni düğmeleri Stardust ekranındadır.
 
-## Thank-you
+## Stardust
 
-Many thanks to every contributor, translator, tester, and enthusiastic user who helped along the way. While the lights are dimming here, the code remains open. Fork freely under the terms of the GPL.
+Stardust, aynı çekirdeğin üzerine kurulan Material 3 arayüzüdür. Sürüm adı `31.0-kitsune-stardust`.
 
-See you in other repos.
+- Gezinme yan raydadır.
+- Tema paleti ve Material You seçilebilir. AMOLED anahtarı koyu zemini siyaha çeker. Palet seçince temalar ekranından çıkılır; AMOLED değişince o ekranda kalınır.
+- Ana sayfa sürüm satırını ve kurulumu ayrı gösterir. Kaldır, kurulumun yanında durur.
+- Günlük ekranı iki hap kullanır: süper kullanıcı günlüğü ve Magisk günlüğü.
+- Modül kartlarında eylem düğmesi durur. Altta tek kurulum düğmesi vardır.
+- Modül deposu Googlers, alternatif depo ve resmi Magisk kanallarını birlikte okur. Yalnız KernelSU veya APatch diye işaretlenmiş kayıtlar listeye girmez.
+
+### Süper kullanıcı
+
+Stardust süper kullanıcı ekranı DenyList ve SuList haplarını, Grant ve Uygulama gizle düğmelerini gösterir.
+
+- Hap, çalışan moda bakar. Mod değişimi yeniden başlatmadan sonra uygulanır ve geçmeden önce sorulur. Çalışmayan listenin tablosu boşaltılır.
+- Grant, çalışan moda yazar. SuList’te seçilen uygulama SuList’e eklenir ve kökü kalır. DenyList’te hem kök kaydı hem DenyList kaydı yazılır.
+- DenyList’teki uygulama ve SuList’te olmayan uygulama `su` alamaz.
+- Kök kısıtlıyken hassas derleme özellikleri maskelenir.
+- Uygulama gizle, listedeki satırdan bağımsız uygulama seçtirir. DenyList’te seçim hidelist’e yazılır ve kalır. SuList, kökü açık tutan listedir; gizlenen uygulama oraya eklenmez, listeden çıkar. Satırda “SuList’te değil, kök yok” görünür.
+- Sonuç, kapanana kadar pencerede kalır. Gizlenen uygulama Kök izinleri listesine iner. Bu satırda kök anahtarı yoktur. Kök verilmiş uygulamaların anahtarı durur.
+- Şimdi gizle, çalışan sürecin Magisk bağlarını söker. Gizlemeyi test et, o süreçteki Magisk izini sayar.
+
+Yerleşik Zygisk kapalıyken zygote, ReZygisk ve Zygisk Next’e bırakılır.
+
+## Lisans
+
+Kod [GPL-3.0-or-later](LICENSE) altındadır. Ağustos 2025’te özgün Kitsune Magisk bakımcısı kendi deposunu arşivlemiştir. Bu depo o duyurunun yerine geçmez; aynı lisansla sürdürülen ayrı bir ağaçtır.
