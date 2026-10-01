@@ -219,16 +219,37 @@ fun MaterialCardView.setAmoledFrame(enabled: Boolean) {
 @BindingAdapter("themeFrame")
 fun MaterialCardView.setThemeFrame(amoled: Boolean) {
     strokeWidth = (1.5f * resources.displayMetrics.density).roundToInt().coerceAtLeast(1)
-    if (amoled) {
-        strokeColor = 0xFF333333.toInt()
-        return
-    }
+    // AMOLED surfaces are black, so the edge is a fixed near-black. Otherwise mix the
+    // theme ink into the background so the same edge still reads on light and dark palettes.
+    strokeColor = if (amoled) 0xFF333333.toInt() else themeEdge(this)
+}
+
+private fun themeEdge(view: MaterialCardView): Int {
+    val background = resolveThemeColor(view, android.R.attr.colorBackground)
+        ?: resolveThemeColor(view, com.google.android.material.R.attr.colorSurface)
+        ?: return 0xFF333333.toInt()
+    val ink = resolveThemeColor(view, com.google.android.material.R.attr.colorOnSurface)
+        ?: return 0xFF333333.toInt()
+    return blendColor(background, ink, 0.42f)
+}
+
+private fun resolveThemeColor(view: MaterialCardView, attr: Int): Int? {
     val value = TypedValue()
-    val resolved = context.theme.resolveAttribute(R.attr.colorSurfaceVariant, value, true)
+    val resolved = view.context.theme.resolveAttribute(attr, value, true)
     val isColor = resolved &&
         value.type >= TypedValue.TYPE_FIRST_COLOR_INT &&
         value.type <= TypedValue.TYPE_LAST_COLOR_INT
-    strokeColor = if (isColor) value.data else 0xFF333333.toInt()
+    return if (isColor) value.data else null
+}
+
+private fun blendColor(from: Int, to: Int, amount: Float): Int {
+    fun channel(start: Int, end: Int) = (start + (end - start) * amount).toInt().coerceIn(0, 255)
+    return android.graphics.Color.argb(
+        255,
+        channel(android.graphics.Color.red(from), android.graphics.Color.red(to)),
+        channel(android.graphics.Color.green(from), android.graphics.Color.green(to)),
+        channel(android.graphics.Color.blue(from), android.graphics.Color.blue(to)),
+    )
 }
 
 @BindingAdapter("onMenuClick")
