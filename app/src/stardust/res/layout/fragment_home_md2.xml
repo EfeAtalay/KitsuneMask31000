@@ -5,8 +5,6 @@
 
     <data>
 
-        <import type="com.topjohnwu.magisk.core.Info" />
-
         <variable
             name="viewModel"
             type="com.topjohnwu.magisk.ui.home.HomeViewModel" />
@@ -184,17 +182,6 @@
                 </FrameLayout>
 
             </com.google.android.material.card.MaterialCardView>
-
-            <Button
-                style="@style/WidgetFoundation.Button.Text"
-                goneUnless="@{Info.env.isActive}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="8dp"
-                android:onClick="@{() -> viewModel.onDeletePressed()}"
-                android:text="@string/uninstall_magisk_title"
-                android:textAllCaps="false" />
 
         </LinearLayout>
 

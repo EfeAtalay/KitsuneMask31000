@@ -96,41 +96,66 @@
 
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.UnelevatedButton"
-            gone="@{viewModel.magiskState == State.OUTDATED}"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:onClick="@{() -> viewModel.onMagiskPressed()}"
-            android:text="@string/install"
-            android:textAllCaps="false"
-            android:textColor="?colorOnPrimary"
-            app:backgroundTint="?colorPrimary"
-            app:cornerRadius="26dp"
-            app:icon="@drawable/ic_download_md2"
-            app:iconGravity="textStart"
-            app:iconTint="?colorOnPrimary" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.UnelevatedButton"
-            gone="@{viewModel.magiskState != State.OUTDATED}"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="14dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:onClick="@{() -> viewModel.onMagiskPressed()}"
-            android:text="@string/update"
-            android:textAllCaps="false"
-            android:textColor="?colorOnPrimary"
-            app:backgroundTint="?colorPrimary"
-            app:cornerRadius="26dp"
-            app:icon="@drawable/ic_update_md2"
-            app:iconGravity="textStart"
-            app:iconTint="?colorOnPrimary" />
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.UnelevatedButton"
+                gone="@{viewModel.magiskState == State.OUTDATED}"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:onClick="@{() -> viewModel.onMagiskPressed()}"
+                android:text="@string/install"
+                android:textAllCaps="false"
+                android:textColor="?colorOnPrimary"
+                app:backgroundTint="?colorPrimary"
+                app:cornerRadius="26dp"
+                app:icon="@drawable/ic_download_md2"
+                app:iconGravity="textStart"
+                app:iconTint="?colorOnPrimary" />
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.UnelevatedButton"
+                gone="@{viewModel.magiskState != State.OUTDATED}"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:onClick="@{() -> viewModel.onMagiskPressed()}"
+                android:text="@string/update"
+                android:textAllCaps="false"
+                android:textColor="?colorOnPrimary"
+                app:backgroundTint="?colorPrimary"
+                app:cornerRadius="26dp"
+                app:icon="@drawable/ic_update_md2"
+                app:iconGravity="textStart"
+                app:iconTint="?colorOnPrimary" />
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.TextButton"
+                goneUnless="@{Info.env.isActive}"
+                android:layout_width="wrap_content"
+                android:layout_height="52dp"
+                android:layout_marginStart="12dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:onClick="@{() -> viewModel.onDeletePressed()}"
+                android:text="@string/home_uninstall"
+                android:textAllCaps="false"
+                android:textColor="?colorError"
+                app:icon="@drawable/ic_delete_md2"
+                app:iconGravity="textStart"
+                app:iconTint="?colorError" />
+
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
