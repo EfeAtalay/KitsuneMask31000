@@ -216,6 +216,21 @@ fun MaterialCardView.setAmoledFrame(enabled: Boolean) {
     }
 }
 
+@BindingAdapter("primaryShade")
+fun View.setPrimaryShade(@Suppress("UNUSED_PARAMETER") enabled: Boolean) {
+    val primary = resolveThemeColor(this, com.google.android.material.R.attr.colorPrimary) ?: return
+    setBackgroundColor(darkenColor(primary, 0.34f))
+}
+
+@BindingAdapter("primaryShadeTint")
+fun ImageView.setPrimaryShadeTint(@Suppress("UNUSED_PARAMETER") enabled: Boolean) {
+    val primary = resolveThemeColor(this, com.google.android.material.R.attr.colorPrimary) ?: return
+    ImageViewCompat.setImageTintList(
+        this,
+        ColorStateList.valueOf(darkenColor(primary, 0.34f))
+    )
+}
+
 @BindingAdapter("themeFrame")
 fun MaterialCardView.setThemeFrame(amoled: Boolean) {
     strokeWidth = (1.5f * resources.displayMetrics.density).roundToInt().coerceAtLeast(1)
@@ -233,13 +248,23 @@ private fun themeEdge(view: MaterialCardView): Int {
     return blendColor(background, ink, 0.42f)
 }
 
-private fun resolveThemeColor(view: MaterialCardView, attr: Int): Int? {
+private fun resolveThemeColor(view: View, attr: Int): Int? {
     val value = TypedValue()
     val resolved = view.context.theme.resolveAttribute(attr, value, true)
     val isColor = resolved &&
         value.type >= TypedValue.TYPE_FIRST_COLOR_INT &&
         value.type <= TypedValue.TYPE_LAST_COLOR_INT
     return if (isColor) value.data else null
+}
+
+private fun darkenColor(color: Int, amount: Float): Int {
+    fun channel(value: Int) = (value * (1f - amount)).toInt().coerceIn(0, 255)
+    return android.graphics.Color.argb(
+        255,
+        channel(android.graphics.Color.red(color)),
+        channel(android.graphics.Color.green(color)),
+        channel(android.graphics.Color.blue(color)),
+    )
 }
 
 private fun blendColor(from: Int, to: Int, amount: Float): Int {
