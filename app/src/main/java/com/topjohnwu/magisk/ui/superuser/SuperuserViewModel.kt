@@ -2,6 +2,7 @@ package com.topjohnwu.magisk.ui.superuser
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES
 import android.os.Process
@@ -64,6 +65,12 @@ class SuperuserViewModel(
     @get:Bindable
     var suListMode = Config.sulist
         private set(value) = set(value, field, { field = it }, BR.suListMode)
+
+    @get:Bindable
+    var showSystemApps = Config.showSystemApp
+        set(value) = set(value, field, { field = it }, BR.showSystemApps) {
+            Config.showSystemApp = it
+        }
 
     @SuppressLint("InlinedApi")
     override suspend fun doLoadWork() {
@@ -195,12 +202,16 @@ class SuperuserViewModel(
 
     private fun grantCandidates(): List<GrantApp> {
         val pm = AppContext.packageManager
+        val showSystem = showSystemApps
         val taken = itemsPolicies.map { it.item.uid }.toSet()
         return pm.getInstalledApplications(0)
             .asSequence()
             .filter { it.uid != Process.SYSTEM_UID && it.uid != Process.myUid() }
             .filter { it.uid !in taken }
-            .filter { pm.getLaunchIntentForPackage(it.packageName) != null }
+            .filter { app ->
+                val system = app.flags and ApplicationInfo.FLAG_SYSTEM != 0
+                if (system) showSystem else pm.getLaunchIntentForPackage(app.packageName) != null
+            }
             .map { GrantApp(it.uid, it.loadLabel(pm).toString()) }
             .distinctBy { it.uid }
             .sortedBy { it.label.lowercase(currentLocale) }
