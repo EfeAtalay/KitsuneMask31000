@@ -196,9 +196,21 @@ class SuperuserViewModel(
     }
 
     fun grantPressed() {
+        appPickerDialog(R.string.grant, ::grantCandidates) { grant(it) }
+    }
+
+    fun hidePressed() {
+        appPickerDialog(R.string.hide_pick_title, ::hideCandidates) { hideApp(it) }
+    }
+
+    private fun appPickerDialog(
+        title: Int,
+        candidates: () -> List<GrantApp>,
+        onPick: (GrantApp) -> Unit
+    ) {
         object : DialogBuilder {
             override fun build(dialog: MagiskDialog) {
-                dialog.setTitle(R.string.grant)
+                dialog.setTitle(title)
                 val root = LayoutInflater.from(dialog.context)
                     .inflate(R.layout.dialog_grant, null)
                 val switch = root.findViewById<MaterialSwitch>(R.id.grant_show_system)
@@ -210,7 +222,7 @@ class SuperuserViewModel(
                 list.layoutManager = LinearLayoutManager(dialog.context)
                 list.setAdapter(rows, bindExtra { extra ->
                     extra.put(BR.listener, MagiskDialog.DialogClickListener { pos ->
-                        apps.getOrNull(pos)?.let { grant(it) }
+                        apps.getOrNull(pos)?.let(onPick)
                         dialog.dismiss()
                     })
                 })
@@ -227,7 +239,7 @@ class SuperuserViewModel(
                 fun reload() {
                     val mine = ++ticket
                     viewModelScope.launch {
-                        val next = withContext(Dispatchers.IO) { grantCandidates() }
+                        val next = withContext(Dispatchers.IO) { candidates() }
                         if (mine == ticket) publish(next)
                     }
                 }
@@ -326,6 +338,75 @@ class SuperuserViewModel(
                 )
             }
             .sortedBy { it.label.lowercase(currentLocale) }
+    }
+
+    private fun hideCandidates(): List<GrantApp> {
+        val pm = AppContext.packageManager
+        val showSystem = showSystemApps
+        val installed = pm.getInstalledApplications(0)
+        val grouped = installed.asSequence()
+            .filter { it.uid != Process.SYSTEM_UID && it.uid != Process.myUid() }
+            .filter { app ->
+                val system = app.flags and ApplicationInfo.FLAG_SYSTEM != 0
+                if (system) showSystem else pm.getLaunchIntentForPackage(app.packageName) != null
+            }
+            .groupBy { it.uid }
+            .map { (uid, apps) ->
+                GrantApp(
+                    uid,
+                    apps.first().loadLabel(pm).toString(),
+                    apps.map { it.packageName }.distinct()
+                )
+            }
+        // Settings shares uid 1000 with the rest of the system. Keep it as its
+        // own row so hiding it only reverts that package, not system_server.
+        val systemLaunchers = if (!showSystem) emptyList() else installed
+            .filter { it.uid == Process.SYSTEM_UID }
+            .filter { pm.getLaunchIntentForPackage(it.packageName) != null }
+            .map { app ->
+                GrantApp(app.uid, app.loadLabel(pm).toString(), listOf(app.packageName))
+            }
+        return (grouped + systemLaunchers).sortedBy { it.label.lowercase(currentLocale) }
+    }
+
+    private fun hideApp(app: GrantApp) {
+        viewModelScope.launch {
+            val message = withContext(Dispatchers.IO) {
+                val cmds = ArrayList<String>()
+                var running = false
+                for (pkg in app.packages) {
+                    val pids = runningPids(pkg)
+                    if (pids.isNotEmpty()) running = true
+                    pids.forEach { cmds += "magisk magiskhide revert $it" }
+                    if (!Info.sulist)
+                        cmds += hidePersistCmds(pkg)
+                }
+                if (cmds.isNotEmpty())
+                    Shell.cmd(*cmds.toTypedArray()).exec()
+                if (!running)
+                    AppContext.getString(R.string.hide_test_closed)
+                else
+                    measureHide(app.packages.first())
+            }
+            SnackbarEvent(message).publish()
+            if (!Info.sulist)
+                startLoading()
+        }
+    }
+
+    private fun hidePersistCmds(pkg: String): List<String> {
+        val pm = AppContext.packageManager
+        val names = try {
+            val info = pm.getApplicationInfo(pkg, 0)
+            AppProcessInfo(info, pm, emptyList()).processes.map { it.name }
+        } catch (e: Exception) {
+            emptyList()
+        }
+        return (names + pkg).distinct().map { proc ->
+            val qPkg = pkg.replace("'", "'\\''")
+            val qProc = proc.replace("'", "'\\''")
+            "magisk magiskhide add '$qPkg' '$qProc'"
+        }
     }
 
     private fun grant(app: GrantApp) {

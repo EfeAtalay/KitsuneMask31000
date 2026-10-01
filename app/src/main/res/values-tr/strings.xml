@@ -266,6 +266,7 @@
     <string name="policy_on_sulist">SuList\'te</string>
     <string name="policy_off_sulist">SuList\'te değil, kök yok</string>
     <string name="hide_test">Gizlemeyi test et</string>
+    <string name="hide_pick_title">Uygulama gizle</string>
     <string name="hide_now">Şimdi gizle</string>
     <string name="hide_test_running">Bakılıyor…</string>
     <string name="hide_test_closed">Uygulamayı açıp yeniden dene</string>
