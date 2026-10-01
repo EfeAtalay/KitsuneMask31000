@@ -210,6 +210,24 @@
                     app:referencedIds="@{viewModel.bottomBarBarrierIds}"
                     tools:constraint_referenced_ids="module_update,module_remove" />
 
+                <Button
+                    android:id="@+id/module_config"
+                    style="@style/WidgetFoundation.Button.Text"
+                    goneUnless="@{item.showAction}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:enabled="@{item.enabled}"
+                    android:focusable="true"
+                    android:onClick="@{() -> viewModel.runAction(item.item.id, item.item.name)}"
+                    android:text="@string/module_action"
+                    android:textAllCaps="false"
+                    app:icon="@drawable/ic_action_md2"
+                    app:iconGravity="textStart"
+                    app:layout_constraintBottom_toBottomOf="@+id/module_remove"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/module_remove" />
+
                 <TextView
                     android:id="@+id/module_notice_text"
                     goneUnless="@{item.showNotice}"
@@ -222,7 +240,7 @@
                     android:textAppearance="@style/AppearanceFoundation.Caption.Primary"
                     app:layout_constraintBottom_toBottomOf="@+id/module_remove"
                     app:layout_constraintEnd_toStartOf="@+id/bottom_bar_barrier"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/module_config"
                     app:layout_constraintTop_toTopOf="@+id/module_remove"
                     tools:lines="2"
                     tools:text="@tools:sample/lorem/random"
