@@ -93,6 +93,14 @@ class PolicyRvItem(
         viewModel.deletePressed(this)
     }
 
+    fun testHide() {
+        viewModel.probeHide(this)
+    }
+
+    @get:Bindable
+    var hideResult = ""
+        set(value) = set(value, field, { field = it }, BR.hideResult)
+
     override fun itemSameAs(other: PolicyRvItem) = packageName == other.packageName
 
     override fun contentSameAs(other: PolicyRvItem) =

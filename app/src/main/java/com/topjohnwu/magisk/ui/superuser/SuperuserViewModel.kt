@@ -367,6 +367,34 @@ class SuperuserViewModel(
         return cmds
     }
 
+    fun probeHide(item: PolicyRvItem) {
+        viewModelScope.launch {
+            item.hideResult = AppContext.getString(R.string.hide_test_running)
+            item.hideResult = withContext(Dispatchers.IO) { measureHide(item.packageName) }
+        }
+    }
+
+    private fun measureHide(pkg: String): String {
+        val pids = Shell.cmd("pidof '$pkg'").exec().out
+            .firstOrNull()
+            ?.split(Regex("\\s+"))
+            ?.filter { it.isNotEmpty() && it.all(Char::isDigit) }
+            .orEmpty()
+        if (pids.isEmpty())
+            return AppContext.getString(R.string.hide_test_closed)
+        var hits = 0
+        for (pid in pids) {
+            val count = Shell.cmd(
+                "grep -c -E ' - tmpfs magisk| worker |/data/adb/modules' /proc/$pid/mountinfo"
+            ).exec().out.firstOrNull()?.trim()?.toIntOrNull() ?: 0
+            hits += count
+        }
+        return if (hits == 0)
+            AppContext.getString(R.string.hide_test_clean)
+        else
+            AppContext.getString(R.string.hide_test_traces, hits)
+    }
+
     private data class GrantApp(val uid: Int, val label: String, val packages: List<String>)
 
     // ---

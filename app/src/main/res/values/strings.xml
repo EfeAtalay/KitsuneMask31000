@@ -304,6 +304,11 @@
     <string name="policy_on_denylist">Hidden by DenyList</string>
     <string name="policy_on_sulist">On SuList</string>
     <string name="policy_off_sulist">Not on SuList, no root</string>
+    <string name="hide_test">Test hide</string>
+    <string name="hide_test_running">Checking…</string>
+    <string name="hide_test_closed">Open the app, then test again</string>
+    <string name="hide_test_clean">Hidden</string>
+    <string name="hide_test_traces">Magisk traces: %1$d</string>
     <string name="confirm">Confirm</string>
     <string name="grant_empty">No apps available</string>
     <string name="home_notice_unofficial_magisk">WARNING! You are using an unofficial version of Magisk that is not officially supported by the Magisk author. This version may contain unstable modifications that could harm your device or compromise your security. Do not report any issues or request any help from official Magisk channels. If you use this version but do not know this is an unofficial version, please switch to the official Magisk at github.com/topjohnwu/Magisk</string>

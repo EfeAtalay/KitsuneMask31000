@@ -265,6 +265,11 @@
     <string name="policy_on_denylist">DenyList ile gizli</string>
     <string name="policy_on_sulist">SuList\'te</string>
     <string name="policy_off_sulist">SuList\'te değil, kök yok</string>
+    <string name="hide_test">Gizlemeyi test et</string>
+    <string name="hide_test_running">Bakılıyor…</string>
+    <string name="hide_test_closed">Uygulamayı açıp yeniden dene</string>
+    <string name="hide_test_clean">Gizli</string>
+    <string name="hide_test_traces">Magisk izi: %1$d</string>
     <string name="confirm">Onayla</string>
     <string name="grant_empty">Uygun uygulama yok</string>
     <string name="restore_app_confirmation">Bu işlem, gizli uygulamayı orijinal uygulama ile değiştirecektir. Bu işlemi yapmak istediğinizden emin misiniz?</string>

@@ -226,6 +226,35 @@
 
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="12dp"
+                    gone="@{!item.isExpanded}">
+
+                    <Button
+                        style="@style/WidgetFoundation.Button.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="36dp"
+                        android:onClick="@{() -> item.testHide()}"
+                        android:text="@string/hide_test"
+                        android:textAllCaps="false" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{item.hideResult}"
+                        android:textColor="?colorOnSurfaceVariant"
+                        android:textSize="13sp"
+                        gone="@{item.hideResult.length() == 0}"
+                        tools:text="@string/hide_test_clean" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
