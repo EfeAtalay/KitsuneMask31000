@@ -208,7 +208,7 @@ class SuperuserViewModel(
                 list.layoutManager = LinearLayoutManager(dialog.context)
                 list.setAdapter(rows, bindExtra { extra ->
                     extra.put(BR.listener, MagiskDialog.DialogClickListener { pos ->
-                        apps.getOrNull(pos)?.let { grant(it.uid) }
+                        apps.getOrNull(pos)?.let { grant(it) }
                         dialog.dismiss()
                     })
                 })
@@ -315,24 +315,63 @@ class SuperuserViewModel(
                 val system = app.flags and ApplicationInfo.FLAG_SYSTEM != 0
                 if (system) showSystem else pm.getLaunchIntentForPackage(app.packageName) != null
             }
-            .map { GrantApp(it.uid, it.loadLabel(pm).toString()) }
-            .distinctBy { it.uid }
+            .groupBy { it.uid }
+            .map { (uid, apps) ->
+                GrantApp(
+                    uid,
+                    apps.first().loadLabel(pm).toString(),
+                    apps.map { it.packageName }.distinct()
+                )
+            }
             .sortedBy { it.label.lowercase(currentLocale) }
-            .toList()
     }
 
-    private fun grant(uid: Int) {
+    private fun grant(app: GrantApp) {
         viewModelScope.launch {
-            val policy = SuPolicy(uid).apply {
+            val policy = SuPolicy(app.uid).apply {
                 this.policy = SuPolicy.ALLOW
                 until = 0
             }
             db.update(policy)
-            startLoading()
+            val cmds = withContext(Dispatchers.IO) { grantListCmds(app.packages) }
+            if (cmds.isEmpty()) {
+                startLoading()
+                return@launch
+            }
+            Shell.cmd(*cmds.toTypedArray()).submit {
+                viewModelScope.launch { startLoading() }
+            }
         }
     }
 
-    private data class GrantApp(val uid: Int, val label: String)
+    // The running daemon enforces Info.sulist. A grant has to land on that
+    // list or the new su check rejects it. A pending SuList switch is written
+    // straight into the sulist table because magiskhide still targets hidelist.
+    private fun grantListCmds(packages: List<String>): List<String> {
+        val onSuList = Info.sulist || Config.sulist
+        if (!onSuList) return emptyList()
+        val pm = AppContext.packageManager
+        val cmds = ArrayList<String>()
+        for (pkg in packages) {
+            val names = try {
+                val info = pm.getApplicationInfo(pkg, 0)
+                AppProcessInfo(info, pm, emptyList()).processes.map { it.name }
+            } catch (e: Exception) {
+                emptyList()
+            }
+            for (proc in (names + pkg).distinct()) {
+                val qPkg = pkg.replace("'", "'\\''")
+                val qProc = proc.replace("'", "'\\''")
+                cmds += if (Info.sulist)
+                    "magisk magiskhide add '$qPkg' '$qProc'"
+                else
+                    "magisk --sqlite \"INSERT OR IGNORE INTO sulist (package_name,process) VALUES('$qPkg','$qProc');\""
+            }
+        }
+        return cmds
+    }
+
+    private data class GrantApp(val uid: Int, val label: String, val packages: List<String>)
 
     // ---
 
