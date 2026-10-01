@@ -344,13 +344,12 @@ class SuperuserViewModel(
         }
     }
 
-    // The running daemon enforces Info.sulist. A grant has to land on that
-    // list or the new su check rejects it. A pending SuList switch is written
-    // straight into the sulist table because magiskhide still targets hidelist.
+    // magiskhide add follows the running daemon: DenyList writes hidelist,
+    // SuList writes sulist. A SuList switch that is still waiting for reboot
+    // is also recorded in the sulist table.
     private fun grantListCmds(packages: List<String>): List<String> {
-        val onSuList = Info.sulist || Config.sulist
-        if (!onSuList) return emptyList()
         val pm = AppContext.packageManager
+        val pendingSu = !Info.sulist && Config.sulist
         val cmds = ArrayList<String>()
         for (pkg in packages) {
             val names = try {
@@ -362,10 +361,9 @@ class SuperuserViewModel(
             for (proc in (names + pkg).distinct()) {
                 val qPkg = pkg.replace("'", "'\\''")
                 val qProc = proc.replace("'", "'\\''")
-                cmds += if (Info.sulist)
-                    "magisk magiskhide add '$qPkg' '$qProc'"
-                else
-                    "magisk --sqlite \"INSERT OR IGNORE INTO sulist (package_name,process) VALUES('$qPkg','$qProc');\""
+                cmds += "magisk magiskhide add '$qPkg' '$qProc'"
+                if (pendingSu)
+                    cmds += "magisk --sqlite \"INSERT OR IGNORE INTO sulist (package_name,process) VALUES('$qPkg','$qProc');\""
             }
         }
         return cmds
