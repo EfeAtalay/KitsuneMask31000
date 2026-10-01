@@ -21,10 +21,10 @@
         android:elevation="@dimen/btn_highlight"
         android:layout_marginStart="@dimen/l1"
         android:layout_marginEnd="@dimen/l1"
-        android:layout_marginBottom="64dp"
+        android:layout_marginBottom="16dp"
         android:onClick="@{() -> viewModel.installPressed()}"
         app:layout_fitsSystemWindowsInsets="bottom"
         app:srcCompat="@drawable/ic_module_storage_md2"
-        tools:layout_marginBottom="64dp"/>
+        tools:layout_marginBottom="16dp"/>
 
 </layout>

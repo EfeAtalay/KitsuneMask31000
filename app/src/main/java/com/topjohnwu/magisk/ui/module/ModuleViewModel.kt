@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.databinding.Bindable
 import androidx.lifecycle.MutableLiveData
 import com.topjohnwu.magisk.BR
+import com.topjohnwu.magisk.BuildConfig
 import com.topjohnwu.magisk.R
 import com.topjohnwu.magisk.MainDirections
 import com.topjohnwu.magisk.arch.AsyncLoadViewModel
@@ -49,8 +50,9 @@ class ModuleViewModel : AsyncLoadViewModel() {
         if (moduleLoaded) {
             loadInstalled()
             if (items.isEmpty()) {
-                items.insertItem(InstallModule)
-                    .insertList(itemsInstalled)
+                if (!BuildConfig.STARDUST_UI)
+                    items.insertItem(InstallModule)
+                items.insertList(itemsInstalled)
             }
         }
         loading = false
