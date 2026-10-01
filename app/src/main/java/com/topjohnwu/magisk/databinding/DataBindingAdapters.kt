@@ -216,6 +216,21 @@ fun MaterialCardView.setAmoledFrame(enabled: Boolean) {
     }
 }
 
+@BindingAdapter("themeFrame")
+fun MaterialCardView.setThemeFrame(amoled: Boolean) {
+    strokeWidth = (1.5f * resources.displayMetrics.density).roundToInt().coerceAtLeast(1)
+    if (amoled) {
+        strokeColor = 0xFF333333.toInt()
+        return
+    }
+    val value = TypedValue()
+    val resolved = context.theme.resolveAttribute(R.attr.colorSurfaceVariant, value, true)
+    val isColor = resolved &&
+        value.type >= TypedValue.TYPE_FIRST_COLOR_INT &&
+        value.type <= TypedValue.TYPE_LAST_COLOR_INT
+    strokeColor = if (isColor) value.data else 0xFF333333.toInt()
+}
+
 @BindingAdapter("onMenuClick")
 fun Toolbar.setOnMenuClickListener(listener: Toolbar.OnMenuItemClickListener) {
     setOnMenuItemClickListener(listener)

@@ -7,6 +7,7 @@ import com.topjohnwu.magisk.BR
 import com.topjohnwu.magisk.BuildConfig
 import com.topjohnwu.magisk.R
 import com.topjohnwu.magisk.arch.AsyncLoadViewModel
+import com.topjohnwu.magisk.core.Config
 import com.topjohnwu.magisk.core.Info
 import com.topjohnwu.magisk.core.ktx.timeFormatStandard
 import com.topjohnwu.magisk.core.ktx.toTime
@@ -17,6 +18,7 @@ import com.topjohnwu.magisk.databinding.bindExtra
 import com.topjohnwu.magisk.databinding.diffList
 import com.topjohnwu.magisk.databinding.set
 import com.topjohnwu.magisk.events.SnackbarEvent
+import com.topjohnwu.magisk.ui.theme.Theme
 import com.topjohnwu.magisk.view.TextItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,6 +35,9 @@ class LogViewModel(
     // --- empty view
 
     val itemMagiskEmpty = TextItem(R.string.log_data_magisk_none)
+
+    val amoledFrame: Boolean
+        get() = Config.amoled || Theme.selected == Theme.PiplupAmoled
 
     // --- su log
 

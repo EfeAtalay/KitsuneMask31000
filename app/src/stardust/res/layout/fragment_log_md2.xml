@@ -70,11 +70,10 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:cardBackgroundColor="?colorSurface"
-                app:cardCornerRadius="28dp"
-                app:cardElevation="0dp"
-                app:strokeColor="?colorSurfaceVariant"
-                app:strokeWidth="1dp">
+                themeFrame="@{viewModel.amoledFrame}"
+                app:cardBackgroundColor="?android:colorBackground"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
 
                 <include
                     android:id="@+id/log_filter_magisk"
