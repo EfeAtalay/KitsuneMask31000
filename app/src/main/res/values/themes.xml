@@ -34,6 +34,11 @@
 
     <style name="ThemeOverlay.Foundation.Dialog" parent="Base.V23.ThemeOverlay.Foundation.Dialog" />
 
+    <style name="SnackbarFallbackColors">
+        <item name="colorOnSurface">#E6E1E5</item>
+        <item name="colorSurface">#1C1B1F</item>
+    </style>
+
     <style name="AmoledBlack">
         <item name="colorSurface">#000000</item>
         <item name="colorSurfaceVariant">#000000</item>

@@ -85,8 +85,14 @@ abstract class UIActivity<Binding : ViewDataBinding> : BaseActivity(), ViewModel
         message: CharSequence,
         length: Int = Snackbar.LENGTH_SHORT,
         builder: Snackbar.() -> Unit = {}
-    ) = Snackbar.make(snackbarView, message, length)
-        .setAnchorView(snackbarAnchorView).apply(builder).show()
+    ) {
+        // Some palette overlays never define this, and the snackbar then
+        // kills the process while inflating.
+        theme.applyStyle(R.style.SnackbarFallbackColors, false)
+        val bar = Snackbar.make(snackbarView, message, length)
+        snackbarAnchorView?.let { bar.anchorView = it }
+        bar.apply(builder).show()
+    }
 
     override fun onResume() {
         super.onResume()

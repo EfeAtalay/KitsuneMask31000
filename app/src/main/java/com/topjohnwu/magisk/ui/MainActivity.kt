@@ -25,10 +25,13 @@ import com.topjohnwu.magisk.core.isRunningAsStub
 import com.topjohnwu.magisk.core.model.module.LocalModule
 import com.topjohnwu.magisk.databinding.ActivityMainMd2Binding
 import com.topjohnwu.magisk.ui.home.HomeFragmentDirections
+import com.topjohnwu.magisk.ui.settings.SettingsFragmentDirections
 import com.topjohnwu.magisk.view.MagiskDialog
 import com.topjohnwu.magisk.view.Shortcuts
 import com.topjohnwu.magisk.widget.ConcealableBottomNavigationView
 import java.io.File
+
+private const val NAV_STACK = "nav_stack"
 
 class MainViewModel : BaseViewModel()
 
@@ -109,9 +112,54 @@ class MainActivity : SplashActivity<ActivityMainMd2Binding>() {
                 intent.getStringExtra(Const.Key.OPEN_SECTION)
 
         getScreen(section)?.navigate()
+        restoreNavStack()
 
         if (!isRootFragment) {
             requestNavigationHidden(requiresAnimation = savedInstanceState == null)
+        }
+    }
+
+    override fun recreate() {
+        val restart = Intent().setComponent(intent.component)
+        if (binded) {
+            val graphId = navigation.graph.id
+            val ids = navigation.currentBackStack.value
+                .map { it.destination.id }
+                .filter { it != graphId }
+                .toIntArray()
+            if (ids.size > 1)
+                restart.putExtra(NAV_STACK, ids)
+        }
+        startActivity(restart)
+        finish()
+    }
+
+    private fun restoreNavStack() {
+        val ids = intent.getIntArrayExtra(NAV_STACK) ?: return
+        intent.removeExtra(NAV_STACK)
+        for (id in ids) {
+            if (navigation.currentDestination?.id == id) continue
+            val directions = directionsFor(id) ?: continue
+            runCatching { directions.navigate() }
+        }
+    }
+
+    private fun directionsFor(id: Int): NavDirections? {
+        return when (id) {
+            R.id.homeFragment -> MainDirections.actionHomeFragment()
+            R.id.settingsFragment ->
+                HomeFragmentDirections.actionHomeFragmentToSettingsFragment()
+            R.id.themeFragment ->
+                SettingsFragmentDirections.actionSettingsFragmentToThemeFragment()
+            R.id.installFragment ->
+                HomeFragmentDirections.actionHomeFragmentToInstallFragment()
+            R.id.denyFragment ->
+                SettingsFragmentDirections.actionSettingsFragmentToDenyFragment()
+            R.id.modulesFragment -> MainDirections.actionModuleFragment()
+            R.id.superuserFragment -> MainDirections.actionSuperuserFragment()
+            R.id.logFragment -> MainDirections.actionLogFragment()
+            R.id.moduleRepoFragment -> MainDirections.actionModuleRepoFragment()
+            else -> null
         }
     }
 
