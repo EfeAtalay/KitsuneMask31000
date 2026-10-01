@@ -14,14 +14,19 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="6dp">
 
         <com.google.android.material.card.MaterialCardView
-            style="@style/WidgetFoundation.Card.Elevated"
+            style="@style/WidgetFoundation.Card.Shadowless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="@{() -> item.toggleExpand()}"
-            app:cardElevation="30dp">
+            app:cardBackgroundColor="?colorSurfaceContainer"
+            app:cardElevation="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"

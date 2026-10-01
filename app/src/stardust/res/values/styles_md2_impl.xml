@@ -53,8 +53,8 @@
     </style>
 
     <style name="WidgetFoundation.Card.Elevated.V21" parent="Widget.Material3.CardView.Elevated">
-        <item name="cardCornerRadius">@dimen/l2</item>
-        <item name="cardElevation">@dimen/l2</item>
+        <item name="cardCornerRadius">@dimen/card_corner</item>
+        <item name="cardElevation">0dp</item>
     </style>
 
     <style name="WidgetFoundation.Card.Elevated" parent="WidgetFoundation.Card.Elevated.V21"/>
