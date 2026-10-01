@@ -190,7 +190,13 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
                         }.getOrNull() ?: return@withPermit
                         val props = parseProp(text)
                         withContext(Dispatchers.Main) {
-                            all.find { it.module.id == row.id }?.applyProp(props)
+                            val item = all.find { it.module.id == row.id } ?: return@withContext
+                            val described = props["name"].orEmpty() + " " + props["description"].orEmpty()
+                            if (!textAllowsMagisk(item.module.id, described)) {
+                                all.remove(item)
+                            } else {
+                                item.applyProp(props)
+                            }
                             schedulePublish()
                         }
                     }
@@ -287,6 +293,7 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
             val id = obj.optString("id")
             val zip = obj.optString("zip_url")
             if (id.isBlank() || !zip.startsWith("https://")) continue
+            if (!textAllowsMagisk(id, "")) continue
             rows += IndexRow(
                 id = id,
                 lastUpdate = obj.optLong("last_update"),
@@ -396,28 +403,33 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
     }
 
     private fun isMagiskCompatible(obj: JSONObject): Boolean {
-        val text = (obj.optString("name") + " " + obj.optString("description")).lowercase(Locale.ROOT)
-        if (text.contains("kernelsu only") || text.contains("apatch only") ||
-            text.contains("not for magisk") || text.contains("not compatible with magisk")
+        val note = obj.optJSONObject("note")
+        val noteText = note?.optString("title").orEmpty() + " " + note?.optString("message").orEmpty()
+        if (!textAllowsMagisk(obj.optString("id") + " " + obj.optString("name"),
+                obj.optString("description") + " " + noteText))
+            return false
+        val manager = obj.optJSONObject("manager") ?: obj.optJSONObject("root")
+        val magisk = manager?.optJSONObject("magisk")
+        // MMRL uses min -1 when that root solution is explicitly unsupported.
+        val min = if (magisk != null && magisk.has("min")) magisk.optInt("min", 0) else null
+        if (min != null && min < 0) return false
+        val meta = obj.optString("metamodule")
+        if ((meta == "1" || meta.equals("true", true)) && (min == null || min < 0))
+            return false
+        val installed = Info.env.versionCode
+        if (min != null && min > 0 && installed > 0 && min > installed) return false
+        return true
+    }
+
+    private fun textAllowsMagisk(name: String, description: String): Boolean {
+        val text = "$name $description".lowercase(Locale.ROOT)
+        if (text.contains("not for magisk") || text.contains("not compatible with magisk") ||
+            text.contains("kernelsu only") || text.contains("apatch only") || text.contains("ksu only")
         ) return false
-        val permissions = obj.optJSONArray("permissions")
-        val manager = obj.optJSONObject("manager")
-        val root = obj.optJSONObject("root")
-        val declaresMagisk = manager?.has("magisk") == true || root?.has("magisk") == true
-        if (permissions == null || permissions.length() == 0) return true
-        var magisk = declaresMagisk
-        var otherRoot = false
-        for (i in 0 until permissions.length()) {
-            val permission = permissions.optString(i)
-            when {
-                permission.startsWith("magisk.") -> magisk = true
-                permission.startsWith("kernelsu.") ||
-                    permission.startsWith("apatch.") ||
-                    permission.startsWith("ksu.") -> otherRoot = true
-            }
-        }
-        if (magisk) return true
-        return !otherRoot
+        val mentionsMagisk = text.contains("magisk")
+        val mentionsOther = text.contains("kernelsu") || text.contains("kernel su") ||
+            text.contains("apatch") || KSU_WORD.containsMatchIn(text)
+        return !mentionsOther || mentionsMagisk
     }
 
     private fun unixMillis(raw: Double): Long {
@@ -542,6 +554,7 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
 
     companion object {
         private const val SOURCE_OFFICIAL = "Official"
+        private val KSU_WORD = Regex("""(^|[^a-z])ksu([^a-z]|$)""")
         private const val MAX_DOWNLOAD = 80L * 1024L * 1024L
         private val REPOS = listOf(
             RepoSource(
