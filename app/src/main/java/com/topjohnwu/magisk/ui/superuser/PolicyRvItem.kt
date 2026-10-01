@@ -26,6 +26,11 @@ class PolicyRvItem(
 
     val title get() = if (isSharedUid) "[SharedUID] $appName" else appName
 
+    // Hide an app stores a deny row with logging and notification off.
+    // That row is not a root grant, so it has no on/off switch.
+    val showRootSwitch get() =
+        item.policy != SuPolicy.DENY || item.logging || item.notification
+
     val showListNote get() = activeSuList || onHideList
 
     val hideTarget get() = if (activeSuList) !onHideList else onHideList
@@ -111,6 +116,8 @@ class PolicyRvItem(
 
     override fun contentSameAs(other: PolicyRvItem) =
         item.policy == other.item.policy &&
+            item.logging == other.item.logging &&
+            item.notification == other.item.notification &&
             onHideList == other.onHideList &&
             activeSuList == other.activeSuList
 
