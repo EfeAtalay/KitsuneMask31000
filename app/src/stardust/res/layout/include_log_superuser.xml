@@ -30,20 +30,6 @@
             tools:listitem="@layout/item_log_access_md2"
             tools:paddingTop="24dp" />
 
-        <FrameLayout
-            gone="@{!viewModel.items.empty}"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center">
-
-            <include
-                item="@{viewModel.itemEmpty}"
-                layout="@layout/item_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </FrameLayout>
-
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

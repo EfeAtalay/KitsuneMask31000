@@ -32,7 +32,6 @@ class LogViewModel(
 
     // --- empty view
 
-    val itemEmpty = TextItem(R.string.log_data_none)
     val itemMagiskEmpty = TextItem(R.string.log_data_magisk_none)
 
     // --- su log

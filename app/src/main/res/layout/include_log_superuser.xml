@@ -34,20 +34,6 @@
             goneUnless="@{viewModel.loading}"
             android:layout_marginTop="@dimen/l1" />
 
-        <FrameLayout
-            gone="@{viewModel.loading || !viewModel.items.empty}"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center">
-
-            <include
-                item="@{viewModel.itemEmpty}"
-                layout="@layout/item_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </FrameLayout>
-
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
