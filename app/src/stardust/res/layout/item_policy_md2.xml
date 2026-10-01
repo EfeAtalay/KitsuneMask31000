@@ -244,6 +244,16 @@
                         android:text="@string/hide_test"
                         android:textAllCaps="false" />
 
+                    <Button
+                        style="@style/WidgetFoundation.Button.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minHeight="36dp"
+                        android:onClick="@{() -> item.hideNow()}"
+                        android:text="@string/hide_now"
+                        android:textAllCaps="false"
+                        gone="@{!item.hideTarget}" />
+
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

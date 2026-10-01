@@ -28,6 +28,8 @@ class PolicyRvItem(
 
     val showListNote get() = activeSuList || onHideList
 
+    val hideTarget get() = if (activeSuList) !onHideList else onHideList
+
     val listWarn get() = activeSuList && !onHideList
 
     val listTint get() = if (listWarn) 0xFFE53935.toInt() else 0xFF9AA0A6.toInt()
@@ -95,6 +97,10 @@ class PolicyRvItem(
 
     fun testHide() {
         viewModel.probeHide(this)
+    }
+
+    fun hideNow() {
+        viewModel.hideNowPressed(this)
     }
 
     @get:Bindable

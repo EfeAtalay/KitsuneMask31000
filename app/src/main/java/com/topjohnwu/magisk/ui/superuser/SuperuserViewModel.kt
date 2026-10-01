@@ -374,12 +374,27 @@ class SuperuserViewModel(
         }
     }
 
+    fun hideNowPressed(item: PolicyRvItem) {
+        viewModelScope.launch {
+            item.hideResult = AppContext.getString(R.string.hide_test_running)
+            item.hideResult = withContext(Dispatchers.IO) {
+                val pids = runningPids(item.packageName)
+                if (pids.isEmpty())
+                    return@withContext AppContext.getString(R.string.hide_test_closed)
+                Shell.cmd(*pids.map { "magisk magiskhide revert $it" }.toTypedArray()).exec()
+                measureHide(item.packageName)
+            }
+        }
+    }
+
+    private fun runningPids(pkg: String) = Shell.cmd("pidof '$pkg'").exec().out
+        .firstOrNull()
+        ?.split(Regex("\\s+"))
+        ?.filter { it.isNotEmpty() && it.all(Char::isDigit) }
+        .orEmpty()
+
     private fun measureHide(pkg: String): String {
-        val pids = Shell.cmd("pidof '$pkg'").exec().out
-            .firstOrNull()
-            ?.split(Regex("\\s+"))
-            ?.filter { it.isNotEmpty() && it.all(Char::isDigit) }
-            .orEmpty()
+        val pids = runningPids(pkg)
         if (pids.isEmpty())
             return AppContext.getString(R.string.hide_test_closed)
         var hits = 0

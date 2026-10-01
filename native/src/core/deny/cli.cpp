@@ -25,6 +25,7 @@ Magisk Delta specific Actions:
    sulist          Return the SuList status
    sulist [enable|disable]
                    Enable or disable SuList (need reboot)
+   revert PID      Unmount Magisk from one process
 
 )EOF");
     exit(1);
@@ -69,6 +70,11 @@ void denylist_handler(int client, const sock_cred *cred) {
     case DenyRequest::SULIST_STATUS:
         res = (sulist_enabled)? DenyResponse::SULIST_ENFORCED : DenyResponse::SULIST_NOT_ENFORCED;
         break;
+    case DenyRequest::REVERT: {
+        int pid = read_int(client);
+        revert_daemon(pid, client);
+        return;
+    }
     default:
         // Unknown request code
         break;
@@ -101,6 +107,8 @@ int denylist_cli(int argc, char **argv) {
             else if (argv[2] == "disable"sv)
                 req = DenyRequest::DISABLE_SULIST;
         } else req = DenyRequest::SULIST_STATUS;
+    } else if (argv[1] == "revert"sv && argc >= 3) {
+        req = DenyRequest::REVERT;
     } else if (argv[1] == "exec"sv && argc > 2) {
         xunshare(CLONE_NEWNS);
         xmount(nullptr, "/", nullptr, MS_PRIVATE | MS_REC, nullptr);
@@ -117,6 +125,8 @@ int denylist_cli(int argc, char **argv) {
     if (req == DenyRequest::ADD || req == DenyRequest::REMOVE) {
         write_string(fd, argv[2]);
         write_string(fd, argv[3] ? argv[3] : "");
+    } else if (req == DenyRequest::REVERT) {
+        write_int(fd, parse_int(argv[2]));
     }
 
     // Get response
