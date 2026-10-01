@@ -99,6 +99,7 @@ extern std::atomic<bool> denylist_enforced;
 int denylist_cli(int argc, char **argv);
 void initialize_denylist();
 bool is_deny_target(int uid, std::string_view process, int max_len = 1024);
+bool uid_su_blocked(int uid);
 void crawl_procfs(const std::function<bool(int)> &fn);
 
 // Revert

@@ -621,6 +621,32 @@ void initialize_denylist() {
     }
 }
 
+bool uid_su_blocked(int uid) {
+    if (!denylist_enforced)
+        return false;
+
+    mutex_guard lock(data_lock);
+    if (!ensure_data())
+        return false;
+
+    int app_id = to_app_id(uid);
+    if (app_id == get_manager())
+        return false;
+
+    bool listed = false;
+    if (auto it = app_id_to_pkgs.find(app_id); it != app_id_to_pkgs.end()) {
+        for (const auto &pkg : it->second) {
+            auto procs = pkg_to_procs.find(pkg);
+            if (procs != pkg_to_procs.end() && !procs->second.empty()) {
+                listed = true;
+                break;
+            }
+        }
+    }
+    // SuList: only listed apps may keep root. DenyList: listed apps lose it.
+    return sulist_enabled ? !listed : listed;
+}
+
 bool is_deny_target(int uid, string_view process, int max_len) {
     mutex_guard lock(data_lock);
     if (!ensure_data())

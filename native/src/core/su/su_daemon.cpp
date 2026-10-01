@@ -7,6 +7,7 @@
 
 #include <consts.hpp>
 #include <base.hpp>
+#include <core.hpp>
 #include <selinux.hpp>
 
 #include "su.hpp"
@@ -293,6 +294,16 @@ void su_daemon_handler(int client, const sock_cred *cred) {
         app_log(ctx);
     else if (ctx.info->access.notify)
         app_notify(ctx);
+
+    // The policy switch is separate from the list. A DenyList app, and an
+    // app left off SuList, must not receive a root shell.
+    if (uid_su_blocked(ctx.info->uid)) {
+        LOGW("su: request rejected, list (%u)\n", ctx.info->uid);
+        ctx.info.reset();
+        write_int(client, DENY);
+        close(client);
+        return;
+    }
 
     // Fail fast
     if (ctx.info->access.policy == DENY) {
