@@ -83,12 +83,38 @@
                         android:text="@{item.packageName}"
                         android:textAppearance="@style/AppearanceFoundation.Caption"
                         android:textIsSelectable="false"
-                        app:layout_constraintBottom_toBottomOf="@id/policy_app_icon"
                         app:layout_constraintEnd_toEndOf="@id/policy_app_name"
                         app:layout_constraintStart_toStartOf="@id/policy_app_name"
                         app:layout_constraintTop_toBottomOf="@id/policy_app_name"
-                        app:layout_constraintVertical_bias="0"
                         tools:text="com.topjohnwu.magisk" />
+
+                    <ImageView
+                        android:id="@+id/policy_list_icon"
+                        gone="@{!item.showListNote}"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginTop="4dp"
+                        app:layout_constraintStart_toStartOf="@id/policy_app_name"
+                        app:layout_constraintTop_toBottomOf="@id/policy_package_name"
+                        app:srcCompat="@{item.activeSuList ? @drawable/ic_shield : @drawable/ic_eye_off}"
+                        app:tint="@{item.listTint}"
+                        tools:src="@drawable/ic_eye_off" />
+
+                    <TextView
+                        android:id="@+id/policy_list_note"
+                        gone="@{!item.showListNote}"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:layout_marginBottom="10dp"
+                        android:text="@{item.listNote}"
+                        android:textColor="@{item.listTint}"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/policy_indicator"
+                        app:layout_constraintStart_toEndOf="@id/policy_list_icon"
+                        app:layout_constraintTop_toTopOf="@id/policy_list_icon"
+                        tools:text="@string/policy_on_denylist" />
 
                     <ImageView
                         android:id="@+id/policy_trash"

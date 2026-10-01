@@ -64,6 +64,19 @@
 
         </LinearLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:background="?selectableItemBackground"
+            android:onClick="@{() -> viewModel.undoPending()}"
+            android:text="@{viewModel.pendingLabel}"
+            android:textColor="?colorPrimary"
+            android:textSize="13sp"
+            gone="@{viewModel.pendingLabel.length() == 0}" />
+
         <com.google.android.material.button.MaterialButton
             style="@style/Widget.Material3.Button.UnelevatedButton"
             android:layout_width="match_parent"

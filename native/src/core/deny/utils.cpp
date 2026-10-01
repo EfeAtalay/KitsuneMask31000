@@ -41,6 +41,7 @@ atomic<bool> denylist_enforced = false;
 #define do_kill (denylist_enforced)
 
 static bool add_hide_set(const char *pkg, const char *proc);
+static void sync_external_denylist();
 
 void rescan_apps() {
     LOGD("denylist: rescanning apps\n");
@@ -57,8 +58,11 @@ void rescan_apps() {
     app_id_to_pkgs.clear();
 
     auto data_dir = xopen_dir(APP_DATA_DIR);
-    if (!data_dir)
+    if (!data_dir) {
+        if (sulist_enabled)
+            sync_external_denylist();
         return;
+    }
     dirent *entry;
     while ((entry = xreaddir(data_dir.get()))) {
         // For each user
@@ -78,6 +82,8 @@ void rescan_apps() {
             close(dfd);
         }
     }
+    if (sulist_enabled)
+        sync_external_denylist();
 }
 
 static void update_pkg_uid(const string &pkg, bool remove) {
@@ -288,6 +294,7 @@ static int add_list(const char *pkg, const char *proc) {
             "INSERT INTO %s (package_name, process) VALUES('%s', '%s')", table_name, pkg, proc);
     char *err = db_exec(sql);
     db_err_cmd(err, return DenyResponse::ERROR)
+    sync_external_denylist();
     return DenyResponse::OK;
 }
 
@@ -334,6 +341,7 @@ static int rm_list(const char *pkg, const char *proc) {
                 "DELETE FROM %s WHERE package_name='%s' AND process='%s'", table_name, pkg, proc);
     char *err = db_exec(sql);
     db_err_cmd(err, return DenyResponse::ERROR)
+    sync_external_denylist();
     return DenyResponse::OK;
 }
 
@@ -412,6 +420,7 @@ void ls_list(int client) {
             }
         }
 
+        sync_external_denylist();
         write_int(client,static_cast<int>(DenyResponse::OK));
 
         for (const auto &[pkg, procs] : pkg_to_procs) {
@@ -425,6 +434,85 @@ void ls_list(int client) {
     }
     write_int(client, 0);
     close(client);
+}
+
+static string sql_quote(string_view in) {
+    string out;
+    out.reserve(in.size());
+    for (char c : in) {
+        if (c == '\'') out += "''";
+        else out += c;
+    }
+    return out;
+}
+
+static bool pkg_prefixes_kept(const string &pkg, const set<string> &kept) {
+    for (const auto &name : kept) {
+        if (name.size() > pkg.size() && name.compare(0, pkg.size(), pkg) == 0)
+            return true;
+    }
+    return false;
+}
+
+// ReZygisk reads only the denylist table. Keep that table equal to the
+// running mode: a copy of hidelist, or every package that is not on SuList.
+static void sync_external_denylist() {
+    if (!denylist_enforced) {
+        db_exec("DELETE FROM denylist;");
+        LOGI("denylist sync: cleared\n");
+        return;
+    }
+
+    if (!sulist_enabled) {
+        db_exec("BEGIN;"
+                "DELETE FROM denylist;"
+                "INSERT INTO denylist (package_name, process) "
+                "SELECT package_name, process FROM hidelist;"
+                "COMMIT;");
+        LOGI("denylist sync: copied hidelist\n");
+        return;
+    }
+
+    set<string> kept;
+    db_exec("SELECT DISTINCT package_name FROM sulist;", [&](db_row &row) -> bool {
+        kept.emplace(row["package_name"]);
+        return true;
+    });
+    kept.emplace("com.android.systemui");
+    kept.emplace("com.android.settings");
+    db_strings str;
+    get_db_strings(str, SU_MANAGER);
+    string manager = str[SU_MANAGER].empty() ? JAVA_PACKAGE_NAME : str[SU_MANAGER];
+    kept.emplace(manager);
+
+    char *begin_err = db_exec("BEGIN; DELETE FROM denylist;");
+    if (db_err(begin_err))
+        return;
+
+    auto data_dir = xopen_dir(APP_DATA_DIR);
+    if (data_dir) {
+        dirent *entry;
+        while ((entry = xreaddir(data_dir.get()))) {
+            int dfd = xopenat(dirfd(data_dir.get()), entry->d_name, O_RDONLY);
+            if (auto dir = xopen_dir(dfd)) {
+                while ((entry = xreaddir(dir.get()))) {
+                    string pkg = entry->d_name;
+                    if (pkg.find('.') == string::npos)
+                        continue;
+                    if (kept.count(pkg) || pkg_prefixes_kept(pkg, kept))
+                        continue;
+                    string q = sql_quote(pkg);
+                    string sql = "INSERT OR REPLACE INTO denylist (package_name, process) VALUES('"
+                            + q + "','" + q + "');";
+                    db_exec(sql.data());
+                }
+            } else {
+                close(dfd);
+            }
+        }
+    }
+    db_exec("COMMIT;");
+    LOGI("denylist sync: sulist inverse, kept %zu\n", kept.size());
 }
 
 static void update_deny_config() {
@@ -486,6 +574,7 @@ int enable_deny() {
     }
 
     update_deny_config();
+    sync_external_denylist();
 
     return DenyResponse::OK;
 
@@ -509,6 +598,7 @@ int disable_deny() {
         pthread_kill(monitor_thread, SIGTERMTHRD);
     }
     update_deny_config();
+    sync_external_denylist();
 
     return DenyResponse::OK;
 }
@@ -525,6 +615,8 @@ void initialize_denylist() {
                 table_name = "sulist";
             }
             enable_deny();
+        } else {
+            sync_external_denylist();
         }
     }
 }

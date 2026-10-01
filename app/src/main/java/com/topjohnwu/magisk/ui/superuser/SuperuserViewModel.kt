@@ -18,6 +18,7 @@ import com.topjohnwu.magisk.core.Config
 import com.topjohnwu.magisk.core.Info
 import com.topjohnwu.magisk.core.data.magiskdb.PolicyDao
 import com.topjohnwu.magisk.core.di.AppContext
+import com.topjohnwu.magisk.ui.deny.AppProcessInfo
 import com.topjohnwu.magisk.core.di.ServiceLocator
 import com.topjohnwu.magisk.core.ktx.getLabel
 import com.topjohnwu.magisk.core.model.su.SuPolicy
@@ -65,8 +66,12 @@ class SuperuserViewModel(
         private set(value) = set(value, field, { field = it }, BR.loading)
 
     @get:Bindable
-    var suListMode = Config.sulist
+    var suListMode = Info.sulist
         private set(value) = set(value, field, { field = it }, BR.suListMode)
+
+    @get:Bindable
+    var pendingLabel = ""
+        private set(value) = set(value, field, { field = it }, BR.pendingLabel)
 
     @get:Bindable
     var showSystemApps = Config.showSystemApp
@@ -84,6 +89,10 @@ class SuperuserViewModel(
         withContext(Dispatchers.IO) {
             db.deleteOutdated()
             db.delete(AppContext.applicationInfo.uid)
+            val listed = Shell.cmd("magisk magiskhide ls").exec().out
+                .map { it.substringBefore('|') }
+                .toSet()
+            val active = Info.sulist
             val policies = ArrayList<PolicyRvItem>()
             val pm = AppContext.packageManager
             for (policy in db.fetchAll()) {
@@ -102,7 +111,9 @@ class SuperuserViewModel(
                             info.packageName,
                             info.sharedUserId != null,
                             info.applicationInfo.loadIcon(pm),
-                            info.applicationInfo.getLabel(pm)
+                            info.applicationInfo.getLabel(pm),
+                            info.packageName in listed,
+                            active
                         )
                     } catch (e: PackageManager.NameNotFoundException) {
                         null
@@ -124,16 +135,29 @@ class SuperuserViewModel(
             itemsHelpers.clear()
         else if (itemsHelpers.isEmpty())
             itemsHelpers.add(itemNoData)
-        suListMode = Config.sulist
+        publishMode()
         loading = false
     }
 
     fun denyListPressed() {
-        if (suListMode) confirmSwitch(false) else openListConfig()
+        when {
+            suListMode -> confirmSwitch(false)
+            modePending() -> SnackbarEvent(R.string.sulist_edit_after_reboot).publish()
+            else -> openListConfig()
+        }
     }
 
     fun suListPressed() {
-        if (!suListMode) confirmSwitch(true) else openListConfig()
+        when {
+            !suListMode -> confirmSwitch(true)
+            modePending() -> SnackbarEvent(R.string.sulist_edit_after_reboot).publish()
+            else -> openListConfig()
+        }
+    }
+
+    fun undoPending() {
+        if (!modePending()) return
+        setSuList(Info.sulist)
     }
 
     private fun confirmSwitch(enableSuList: Boolean) {
@@ -155,7 +179,15 @@ class SuperuserViewModel(
                 dialog.setButton(MagiskDialog.ButtonType.POSITIVE) {
                     text = R.string.confirm
                     filled = true
-                    onClick { setSuList(enableSuList) }
+                    onClick {
+                        viewModelScope.launch {
+                            val extra = withContext(Dispatchers.IO) {
+                                if (enableSuList) carrySql("sulist", onlyAllowed = true)
+                                else carrySql("hidelist", onlyAllowed = false)
+                            }
+                            setSuList(enableSuList, extra)
+                        }
+                    }
                 }
             }
         }.show()
@@ -216,20 +248,58 @@ class SuperuserViewModel(
         SuperuserFragmentDirections.actionSuperuserFragmentToDenyFragment().navigate()
     }
 
-    private fun setSuList(enabled: Boolean) {
+    private fun modePending() = Config.sulist != Info.sulist
+
+    private fun publishMode() {
+        suListMode = Info.sulist
+        pendingLabel = when {
+            !modePending() -> ""
+            Config.sulist -> AppContext.getString(R.string.sulist_pending_sulist)
+            else -> AppContext.getString(R.string.sulist_pending_denylist)
+        }
+    }
+
+    private fun sqlQuote(value: String) = value.replace("'", "''")
+
+    // The running daemon still writes to the old mode's table until reboot,
+    // so the carried apps go straight into the target table by SQL.
+    private fun carrySql(table: String, onlyAllowed: Boolean): String {
+        val pm = AppContext.packageManager
+        val sql = StringBuilder()
+        val seen = HashSet<String>()
+        for (item in itemsPolicies) {
+            if (onlyAllowed && item.item.policy != SuPolicy.ALLOW) continue
+            if (!seen.add(item.packageName)) continue
+            val names = try {
+                val info = pm.getApplicationInfo(item.packageName, 0)
+                AppProcessInfo(info, pm, emptyList()).processes.map { it.name }
+            } catch (e: Exception) {
+                emptyList()
+            }
+            for (proc in (names + item.packageName).distinct()) {
+                sql.append("INSERT OR IGNORE INTO ").append(table)
+                sql.append(" (package_name,process) VALUES('")
+                sql.append(sqlQuote(item.packageName))
+                sql.append("','")
+                sql.append(sqlQuote(proc))
+                sql.append("');")
+            }
+        }
+        return sql.toString()
+    }
+
+    private fun setSuList(enabled: Boolean, extraSql: String = "") {
         if (enabled && !Config.denyList) {
             SnackbarEvent(R.string.settings_sulist_error_magiskhide).publish()
             return
         }
         val cmd = if (enabled) "1" else "0"
         Shell.cmd(
-            "magisk --sqlite \"REPLACE INTO settings (key,value) VALUES('sulist',$cmd);\""
+            "magisk --sqlite \"REPLACE INTO settings (key,value) VALUES('sulist',$cmd);$extraSql\""
         ).submit { result ->
             if (!result.isSuccess) return@submit
             Config.sulist = enabled
-            viewModelScope.launch {
-                suListMode = enabled
-            }
+            viewModelScope.launch { publishMode() }
         }
     }
 

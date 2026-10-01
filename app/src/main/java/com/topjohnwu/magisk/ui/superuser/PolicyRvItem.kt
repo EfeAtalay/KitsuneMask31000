@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable
 import androidx.databinding.Bindable
 import com.topjohnwu.magisk.BR
 import com.topjohnwu.magisk.R
+import com.topjohnwu.magisk.core.di.AppContext
 import com.topjohnwu.magisk.core.model.su.SuPolicy
 import com.topjohnwu.magisk.databinding.DiffItem
 import com.topjohnwu.magisk.databinding.ItemWrapper
@@ -16,12 +17,31 @@ class PolicyRvItem(
     val packageName: String,
     private val isSharedUid: Boolean,
     val icon: Drawable,
-    val appName: String
+    val appName: String,
+    val onHideList: Boolean,
+    val activeSuList: Boolean
 ) : ObservableRvItem(), DiffItem<PolicyRvItem>, ItemWrapper<SuPolicy> {
 
     override val layoutRes = R.layout.item_policy_md2
 
     val title get() = if (isSharedUid) "[SharedUID] $appName" else appName
+
+    val showListNote get() = activeSuList || onHideList
+
+    val listWarn get() = activeSuList && !onHideList
+
+    val listTint get() = if (listWarn) 0xFFE53935.toInt() else 0xFF9AA0A6.toInt()
+
+    val listNote: String
+        get() {
+            val res = when {
+                activeSuList && onHideList -> R.string.policy_on_sulist
+                activeSuList -> R.string.policy_off_sulist
+                onHideList -> R.string.policy_on_denylist
+                else -> return ""
+            }
+            return AppContext.getString(res)
+        }
 
     private inline fun <reified T> setImpl(new: T, old: T, setter: (T) -> Unit) {
         if (old != new) {
@@ -75,6 +95,9 @@ class PolicyRvItem(
 
     override fun itemSameAs(other: PolicyRvItem) = packageName == other.packageName
 
-    override fun contentSameAs(other: PolicyRvItem) = item.policy == other.item.policy
+    override fun contentSameAs(other: PolicyRvItem) =
+        item.policy == other.item.policy &&
+            onHideList == other.onHideList &&
+            activeSuList == other.activeSuList
 
 }
