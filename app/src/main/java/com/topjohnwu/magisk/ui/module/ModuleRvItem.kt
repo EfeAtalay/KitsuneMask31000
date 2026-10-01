@@ -1,5 +1,7 @@
 package com.topjohnwu.magisk.ui.module
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.databinding.Bindable
 import com.topjohnwu.magisk.BR
 import com.topjohnwu.magisk.R
@@ -12,6 +14,8 @@ import com.topjohnwu.magisk.databinding.RvItem
 import com.topjohnwu.magisk.databinding.set
 import com.topjohnwu.magisk.utils.TextHolder
 import com.topjohnwu.magisk.utils.asText
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object InstallModule : RvItem(), DiffItem<InstallModule> {
     override val layoutRes = R.layout.item_module_download
@@ -71,6 +75,21 @@ class LocalModuleRvItem(
 
     val hasWebUi get() = item.hasWebUi
 
+    @get:Bindable
+    var banner: Bitmap? = null
+        private set(value) = set(value, field, { field = it }, BR.banner, BR.hasBanner)
+
+    @get:Bindable
+    val hasBanner get() = banner != null
+
+    suspend fun loadBanner() {
+        if (banner != null) return
+        val decoded = withContext(Dispatchers.IO) {
+            runCatching { decodeBanner(item.readBanner()) }.getOrNull()
+        } ?: return
+        banner = decoded
+    }
+
     fun openWebUi(view: android.view.View) {
         view.context.startActivity(
             android.content.Intent(view.context, WebUIActivity::class.java)
@@ -84,4 +103,21 @@ class LocalModuleRvItem(
     }
 
     override fun itemSameAs(other: LocalModuleRvItem): Boolean = item.id == other.item.id
+
+    private fun decodeBanner(bytes: ByteArray?): Bitmap? {
+        if (bytes == null || bytes.isEmpty()) return null
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+        val opts = BitmapFactory.Options().apply {
+            inSampleSize = bannerSampleSize(bounds.outWidth, bounds.outHeight)
+        }
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
+    }
+
+    private fun bannerSampleSize(width: Int, height: Int): Int {
+        var sample = 1
+        while (width / sample > 1600 || height / sample > 800) sample *= 2
+        return sample
+    }
 }

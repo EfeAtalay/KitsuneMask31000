@@ -121,6 +121,29 @@
     <string name="suspend_text_zygisk">Module suspended because %1$s is not enabled</string>
     <string name="zygisk_module_unloaded">Zygisk module not loaded due to incompatibility</string>
     <string name="module_empty">No module installed</string>
+    <string name="module_repo">Module repo</string>
+    <string name="module_repo_empty">The repository is empty</string>
+    <string name="module_repo_failed">Could not load the repository</string>
+    <string name="module_repo_bad_zip">This download is not a Magisk module</string>
+    <string name="module_repo_search">Search modules</string>
+    <string name="module_sort">Sort</string>
+    <string name="module_sort_name">Name (A–Z)</string>
+    <string name="module_sort_name_desc">Name (Z–A)</string>
+    <string name="module_sort_author">Author</string>
+    <string name="module_sort_update">Updates first</string>
+    <string name="module_sort_enabled">Enabled first</string>
+    <string name="module_repo_sort_updated">Recently updated</string>
+    <string name="module_repo_sort_name">Name</string>
+    <string name="module_repo_sort_stars">Stars</string>
+    <string name="module_reinstall">Reinstall</string>
+    <string name="module_installed">Installed</string>
+    <string-array name="module_sort_options">
+        <item>@string/module_sort_name</item>
+        <item>@string/module_sort_name_desc</item>
+        <item>@string/module_sort_author</item>
+        <item>@string/module_sort_update</item>
+        <item>@string/module_sort_enabled</item>
+    </string-array>
     <string name="confirm_install">Install module %1$s?</string>
     <string name="confirm_install_title">Install Confirmation</string>
 

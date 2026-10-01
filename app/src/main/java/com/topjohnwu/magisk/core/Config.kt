@@ -58,6 +58,7 @@ object Config : PreferenceConfig, DBConfig {
         const val DARK_THEME = "dark_theme_extended"
         const val AMOLED = "amoled"
         const val REPO_ORDER = "repo_order"
+        const val MODULE_SORT = "module_sort"
         const val SHOW_SYSTEM_APP = "show_system"
         const val DOWNLOAD_DIR = "download_dir"
         const val SAFETY = "safety_notice"
@@ -112,6 +113,14 @@ object Config : PreferenceConfig, DBConfig {
         // repo order
         const val ORDER_NAME = 0
         const val ORDER_DATE = 1
+        const val ORDER_STARS = 2
+
+        // installed module order
+        const val MODULE_NAME = 0
+        const val MODULE_NAME_DESC = 1
+        const val MODULE_AUTHOR = 2
+        const val MODULE_UPDATE = 3
+        const val MODULE_ENABLED = 4
     }
 
     private val defaultChannel =
@@ -131,6 +140,7 @@ object Config : PreferenceConfig, DBConfig {
 
     var downloadDir by preference(Key.DOWNLOAD_DIR, "")
     var repoOrder by preference(Key.REPO_ORDER, Value.ORDER_DATE)
+    var moduleSort by preference(Key.MODULE_SORT, Value.MODULE_NAME)
 
     var suDefaultTimeout by preferenceStrInt(Key.SU_REQUEST_TIMEOUT, 10)
     var suAutoResponse by preferenceStrInt(Key.SU_AUTO_RESPONSE, Value.SU_PROMPT)

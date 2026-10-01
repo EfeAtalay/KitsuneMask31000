@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search_md2"
+        android:title="@string/module_repo_search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView" />
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_repo_sort_date"
+            android:title="@string/module_repo_sort_updated"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_repo_sort_name"
+            android:title="@string/module_repo_sort_name"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_repo_sort_stars"
+            android:title="@string/module_repo_sort_stars"
+            app:showAsAction="never" />
+    </group>
+</menu>

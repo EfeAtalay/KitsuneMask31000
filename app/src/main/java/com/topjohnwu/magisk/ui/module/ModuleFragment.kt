@@ -1,18 +1,23 @@
 package com.topjohnwu.magisk.ui.module
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
+import androidx.core.view.MenuProvider
 import com.topjohnwu.magisk.R
 import com.topjohnwu.magisk.arch.BaseFragment
 import com.topjohnwu.magisk.arch.viewModel
 import com.topjohnwu.magisk.core.utils.MediaStoreUtils.displayName
 import com.topjohnwu.magisk.databinding.FragmentModuleMd2Binding
+import com.topjohnwu.magisk.view.MagiskDialog
 import rikka.recyclerview.addEdgeSpacing
 import rikka.recyclerview.addInvalidateItemDecorationsObserver
 import rikka.recyclerview.addItemSpacing
 import rikka.recyclerview.fixEdgeEffect
 
-class ModuleFragment : BaseFragment<FragmentModuleMd2Binding>() {
+class ModuleFragment : BaseFragment<FragmentModuleMd2Binding>(), MenuProvider {
 
     override val layoutRes = R.layout.fragment_module_md2
     override val viewModel by viewModel<ModuleViewModel>()
@@ -40,5 +45,33 @@ class ModuleFragment : BaseFragment<FragmentModuleMd2Binding>() {
     }
 
     override fun onPreBind(binding: FragmentModuleMd2Binding) = Unit
+
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_module, menu)
+    }
+
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_module_repo -> {
+                viewModel.openRepo()
+                return true
+            }
+            R.id.action_module_sort -> {
+                showSortDialog()
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun showSortDialog() {
+        val host = activity ?: return
+        MagiskDialog(host).apply {
+            setTitle(R.string.module_sort)
+            setListItems(host.resources.getTextArray(R.array.module_sort_options)) {
+                viewModel.setSort(it)
+            }
+        }.show()
+    }
 
 }

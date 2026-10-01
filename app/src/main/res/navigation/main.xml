@@ -85,6 +85,12 @@
         tools:layout="@layout/fragment_module_md2" />
 
     <fragment
+        android:id="@+id/moduleRepoFragment"
+        android:name="com.topjohnwu.magisk.ui.module.ModuleRepoFragment"
+        android:label="ModuleRepoFragment"
+        tools:layout="@layout/fragment_module_repo" />
+
+    <fragment
         android:id="@+id/settingsFragment"
         android:name="com.topjohnwu.magisk.ui.settings.SettingsFragment"
         android:label="SettingsFragment"
@@ -147,6 +153,14 @@
         app:popEnterAnim="@anim/fragment_enter_pop"
         app:popExitAnim="@anim/fragment_exit_pop"
         app:popUpTo="@id/homeFragment" />
+
+    <action
+        android:id="@+id/action_moduleRepoFragment"
+        app:destination="@id/moduleRepoFragment"
+        app:enterAnim="@anim/fragment_enter"
+        app:exitAnim="@anim/fragment_exit"
+        app:popEnterAnim="@anim/fragment_enter_pop"
+        app:popExitAnim="@anim/fragment_exit_pop" />
 
     <action
         android:id="@+id/action_moduleFragment"

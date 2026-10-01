@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="com.topjohnwu.magisk.ui.module.RepoModuleRvItem" />
+
+        <variable
+            name="viewModel"
+            type="com.topjohnwu.magisk.ui.module.ModuleRepoViewModel" />
+
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        style="@style/WidgetFoundation.Card"
+        amoledFrame="@{viewModel.amoledFrame}"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="6dp"
+        app:cardBackgroundColor="@color/color_card_background_color_selector"
+        app:cardElevation="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp">
+
+            <TextView
+                android:id="@+id/repo_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/l1"
+                android:layout_marginTop="@dimen/l1"
+                android:layout_marginEnd="@dimen/l_50"
+                android:text="@{item.title}"
+                android:textAppearance="@style/AppearanceFoundation.Body"
+                android:textColor="?android:textColorPrimary"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@id/repo_stars"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Systemless Hosts" />
+
+            <TextView
+                android:id="@+id/repo_stars"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/l1"
+                android:text="@{item.starsLabel}"
+                android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                android:textColor="?android:textColorSecondary"
+                app:layout_constraintBaseline_toBaselineOf="@id/repo_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="★ 120" />
+
+            <TextView
+                android:id="@+id/repo_subtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{item.subtitle}"
+                android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                android:textColor="?android:textColorSecondary"
+                app:layout_constraintEnd_toEndOf="@id/repo_title"
+                app:layout_constraintStart_toStartOf="@id/repo_title"
+                app:layout_constraintTop_toBottomOf="@id/repo_title"
+                tools:text="1.2 · author" />
+
+            <TextView
+                android:id="@+id/repo_description"
+                goneUnless="@{item.hasDescription}"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/l_50"
+                android:layout_marginEnd="@dimen/l1"
+                android:maxLines="3"
+                android:text="@{item.description}"
+                android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                android:textColor="?android:textColorSecondary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/repo_title"
+                app:layout_constraintTop_toBottomOf="@id/repo_subtitle"
+                tools:text="Description" />
+
+            <Button
+                android:id="@+id/repo_install"
+                style="@style/WidgetFoundation.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="@{!item.installing}"
+                android:onClick="@{() -> viewModel.installPressed(item)}"
+                android:text="@{item.installing ? @string/loading : (item.installed ? @string/module_reinstall : @string/install)}"
+                android:textAllCaps="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/repo_description"
+                tools:text="Install" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</layout>

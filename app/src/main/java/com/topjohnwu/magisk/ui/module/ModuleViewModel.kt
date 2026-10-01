@@ -3,11 +3,13 @@ package com.topjohnwu.magisk.ui.module
 import android.net.Uri
 import androidx.databinding.Bindable
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.topjohnwu.magisk.BR
 import com.topjohnwu.magisk.BuildConfig
 import com.topjohnwu.magisk.R
 import com.topjohnwu.magisk.MainDirections
 import com.topjohnwu.magisk.arch.AsyncLoadViewModel
+import com.topjohnwu.magisk.core.Config
 import com.topjohnwu.magisk.core.Const
 import com.topjohnwu.magisk.core.Info
 import com.topjohnwu.magisk.core.base.ContentResultCallback
@@ -22,9 +24,12 @@ import com.topjohnwu.magisk.dialog.LocalModuleInstallDialog
 import com.topjohnwu.magisk.dialog.OnlineModuleInstallDialog
 import com.topjohnwu.magisk.events.GetContentEvent
 import com.topjohnwu.magisk.events.SnackbarEvent
+import com.topjohnwu.magisk.ui.theme.Theme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
+import java.util.Locale
 
 class ModuleViewModel : AsyncLoadViewModel() {
 
@@ -38,6 +43,9 @@ class ModuleViewModel : AsyncLoadViewModel() {
     }
 
     val data get() = uri
+
+    val amoledFrame: Boolean
+        get() = Config.amoled || Theme.selected == Theme.PiplupAmoled
 
     @get:Bindable
     var loading = true
@@ -62,10 +70,27 @@ class ModuleViewModel : AsyncLoadViewModel() {
     override fun onNetworkChanged(network: Boolean) = startLoading()
 
     private suspend fun loadInstalled() {
-        withContext(Dispatchers.Default) {
-            val installed = LocalModule.installed().map { LocalModuleRvItem(it) }
-            itemsInstalled.update(installed)
+        val installed = withContext(Dispatchers.IO) {
+            LocalModule.installed().map { LocalModuleRvItem(it) }
         }
+        val sorted = withContext(Dispatchers.Default) { installed.sortedForConfig() }
+        itemsInstalled.update(sorted)
+        loadBanners(sorted)
+    }
+
+    private fun loadBanners(installed: List<LocalModuleRvItem>) {
+        viewModelScope.launch {
+            installed.forEach { it.loadBanner() }
+        }
+    }
+
+    fun setSort(order: Int) {
+        Config.moduleSort = order
+        viewModelScope.launch { resort() }
+    }
+
+    fun openRepo() {
+        MainDirections.actionModuleRepoFragment().navigate()
     }
 
     private suspend fun loadUpdateInfo() {
@@ -74,6 +99,32 @@ class ModuleViewModel : AsyncLoadViewModel() {
                 if (it.item.fetch())
                     it.fetchedUpdateInfo()
             }
+        }
+        if (Config.moduleSort == Config.Value.MODULE_UPDATE)
+            resort()
+    }
+
+    private suspend fun resort() {
+        val sorted = withContext(Dispatchers.Default) {
+            itemsInstalled.toList().sortedForConfig()
+        }
+        itemsInstalled.update(sorted)
+    }
+
+    private fun List<LocalModuleRvItem>.sortedForConfig(): List<LocalModuleRvItem> {
+        val byName: (LocalModuleRvItem) -> String = { it.item.name.lowercase(Locale.ROOT) }
+        return when (Config.moduleSort) {
+            Config.Value.MODULE_NAME_DESC -> sortedByDescending(byName)
+            Config.Value.MODULE_AUTHOR -> sortedWith(
+                compareBy({ it.item.author.lowercase(Locale.ROOT) }, byName)
+            )
+            Config.Value.MODULE_UPDATE -> sortedWith(
+                compareByDescending<LocalModuleRvItem> { it.updateReady }.thenBy(byName)
+            )
+            Config.Value.MODULE_ENABLED -> sortedWith(
+                compareByDescending<LocalModuleRvItem> { it.isEnabled }.thenBy(byName)
+            )
+            else -> sortedBy(byName)
         }
     }
 

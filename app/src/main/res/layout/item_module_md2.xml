@@ -33,6 +33,7 @@
             android:focusable="@{!item.removed &amp;&amp; item.enabled &amp;&amp; !item.showNotice}"
             android:nextFocusRight="@id/module_indicator"
             android:onClick="@{() -> item.setEnabled(!item.enabled)}"
+            amoledFrame="@{viewModel.amoledFrame}"
             app:cardBackgroundColor="@color/color_card_background_color_selector"
             tools:isEnabled="false"
             tools:layout_gravity="center"
@@ -61,6 +62,19 @@
                 android:animateLayoutChanges="true"
                 android:duplicateParentState="true">
 
+                <ImageView
+                    android:id="@+id/module_banner"
+                    goneUnless="@{item.hasBanner}"
+                    moduleBanner="@{item.banner}"
+                    android:layout_width="0dp"
+                    android:layout_height="148dp"
+                    android:contentDescription="@null"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:visibility="gone" />
+
                 <TextView
                     android:id="@+id/module_title"
                     strikeThrough="@{item.removed}"
@@ -76,7 +90,7 @@
                     android:textStyle="bold"
                     app:layout_constraintEnd_toStartOf="@+id/module_indicator"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/module_banner"
                     tools:text="@tools:sample/lorem" />
 
                 <TextView

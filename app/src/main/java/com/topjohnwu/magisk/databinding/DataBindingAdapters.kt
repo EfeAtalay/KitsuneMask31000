@@ -2,6 +2,7 @@ package com.topjohnwu.magisk.databinding
 
 import android.animation.ValueAnimator
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.text.Spanned
@@ -198,6 +199,21 @@ fun Button.setIcon(drawable: Drawable) {
 @BindingAdapter("strokeWidth")
 fun MaterialCardView.setCardStrokeWidthBound(stroke: Float) {
     strokeWidth = stroke.roundToInt()
+}
+
+@BindingAdapter("moduleBanner")
+fun ImageView.setModuleBanner(bitmap: Bitmap?) {
+    setImageBitmap(bitmap)
+}
+
+@BindingAdapter("amoledFrame")
+fun MaterialCardView.setAmoledFrame(enabled: Boolean) {
+    if (enabled) {
+        strokeWidth = (1.5f * resources.displayMetrics.density).roundToInt().coerceAtLeast(1)
+        strokeColor = 0xFF333333.toInt()
+    } else {
+        strokeWidth = 0
+    }
 }
 
 @BindingAdapter("onMenuClick")

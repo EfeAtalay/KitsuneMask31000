@@ -113,6 +113,22 @@
     <string name="suspend_text_zygisk">%1$s etkin olmadığı için modül askıya alındı</string>
     <string name="zygisk_module_unloaded">Uyumsuzluk nedeniyle Zygisk modülü yüklenmedi</string>
     <string name="module_empty">Yüklü modül yok</string>
+    <string name="module_repo">Modül deposu</string>
+    <string name="module_repo_empty">Depo boş</string>
+    <string name="module_repo_failed">Depo yüklenemedi</string>
+    <string name="module_repo_bad_zip">Bu dosya bir Magisk modülü değil</string>
+    <string name="module_repo_search">Modül ara</string>
+    <string name="module_sort">Sırala</string>
+    <string name="module_sort_name">Ada göre (A–Z)</string>
+    <string name="module_sort_name_desc">Ada göre (Z–A)</string>
+    <string name="module_sort_author">Yazara göre</string>
+    <string name="module_sort_update">Güncellemesi olanlar önce</string>
+    <string name="module_sort_enabled">Etkin olanlar önce</string>
+    <string name="module_repo_sort_updated">Son güncellenen</string>
+    <string name="module_repo_sort_name">Ada göre</string>
+    <string name="module_repo_sort_stars">Yıldıza göre</string>
+    <string name="module_reinstall">Yeniden yükle</string>
+    <string name="module_installed">Yüklü</string>
     <string name="confirm_install">%1$s modülü yüklensin mi?</string>
     <string name="confirm_install_title">Yükleme Onayı</string>
 

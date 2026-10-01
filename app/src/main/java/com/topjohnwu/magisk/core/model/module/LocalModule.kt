@@ -42,6 +42,17 @@ data class LocalModule(
     val hasWebUi: Boolean get() = webRoot.isDirectory
     val webRootPath: String get() = webRoot.path
 
+    fun readBanner(): ByteArray? {
+        for (name in BANNER_FILES) {
+            val file = RootUtils.fs.getFile(path, name)
+            if (!file.exists() || file.isDirectory) continue
+            val length = file.length()
+            if (length <= 0L || length > MAX_BANNER_BYTES) continue
+            return runCatching { file.newInputStream().use { it.readBytes() } }.getOrNull()
+        }
+        return null
+    }
+
     var enable: Boolean
         get() = !disableFile.exists()
         set(enable) {
@@ -127,6 +138,11 @@ data class LocalModule(
     }
 
     companion object {
+
+        private val BANNER_FILES = arrayOf(
+            "banner.png", "banner.jpg", "banner.jpeg", "banner.webp"
+        )
+        private const val MAX_BANNER_BYTES = 12L * 1024L * 1024L
 
         fun loaded() = RootUtils.fs.getFile(Const.MAGISK_PATH).exists()
 

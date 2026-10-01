@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_module_repo"
+        android:icon="@drawable/ic_extension"
+        android:title="@string/module_repo"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_module_sort"
+        android:icon="@drawable/ic_order_name"
+        android:title="@string/module_sort"
+        app:showAsAction="ifRoom" />
+</menu>
