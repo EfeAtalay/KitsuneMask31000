@@ -60,9 +60,10 @@
                 android:layout_marginTop="@dimen/l1" />
 
             <TextView
-                gone="@{viewModel.loading || viewModel.items.size() != 0}"
+                gone="@{viewModel.loading || !viewModel.showEmpty}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:text="@string/module_repo_empty"
                 android:textAppearance="@style/AppearanceFoundation.Title"
                 android:textStyle="bold" />

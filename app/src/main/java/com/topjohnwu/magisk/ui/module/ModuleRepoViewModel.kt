@@ -63,6 +63,10 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
         private set(value) = set(value, field, { field = it }, BR.loading)
 
     @get:Bindable
+    var showEmpty = false
+        private set(value) = set(value, field, { field = it }, BR.showEmpty)
+
+    @get:Bindable
     var detailing = false
         private set(value) = set(value, field, { field = it }, BR.detailing)
 
@@ -70,12 +74,18 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
         if (started) return
         started = true
         loading = true
+        showEmpty = false
         try {
             val cache = withContext(Dispatchers.IO) { readCache() }
             val installed = withContext(Dispatchers.IO) { installedIds() }
             if (Info.isConnected.value != true) {
                 showCached(cache, installed)
-                if (all.isEmpty()) SnackbarEvent(R.string.no_connection).publish()
+                if (all.isEmpty()) {
+                    SnackbarEvent(R.string.no_connection).publish()
+                    showEmpty = true
+                } else {
+                    publishNow()
+                }
                 started = all.isNotEmpty()
                 return
             }
@@ -89,7 +99,7 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
                     propUrl = row.propUrl,
                     zipUrl = row.zipUrl,
                     notesUrl = row.notesUrl,
-                    stars = row.stars,
+                    stars = maxOf(row.stars, cached?.stars ?: 0),
                     name = row.name.ifBlank { cached?.name?.takeIf { it.isNotBlank() } ?: row.id },
                     author = row.author.ifBlank { cached?.author.orEmpty() },
                     version = row.version.ifBlank { cached?.version.orEmpty() },
@@ -102,11 +112,15 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
             publishNow()
             loading = false
             detailing = true
+            fillMissingStars(index)
             enrich(index, cache)
             withContext(Dispatchers.IO) { writeCache() }
         } catch (e: Exception) {
             Timber.w(e)
-            if (all.isEmpty()) SnackbarEvent(R.string.module_repo_failed).publish()
+            if (all.isEmpty()) {
+                SnackbarEvent(R.string.module_repo_failed).publish()
+                showEmpty = true
+            }
             started = all.isNotEmpty()
         } finally {
             detailing = false
@@ -170,7 +184,6 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
         all += cache.values.map { cached ->
             RepoModuleRvItem(cached, cached.id in installed)
         }
-        publishNow()
     }
 
     private suspend fun enrich(index: List<IndexRow>, cache: Map<String, RepoModule>) {
@@ -215,20 +228,67 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
         publishJob = viewModelScope.launch {
             delay(200)
             val next = withContext(Dispatchers.Default) { arrange(snapshot, q, order) }
-            if (ticket == publishGeneration) items.update(next)
+            if (ticket != publishGeneration) return@launch
+            items.update(next)
+            showEmpty = next.isEmpty()
         }
     }
 
-    private fun publishNow() {
+    private suspend fun fillMissingStars(index: List<IndexRow>) {
+        val pending = index.mapNotNull { row ->
+            val item = all.find { it.module.id == row.id } ?: return@mapNotNull null
+            if (item.module.stars > 0) return@mapNotNull null
+            val slug = repoSlug(row.id, row.repoUrl) ?: return@mapNotNull null
+            item to slug
+        }
+        if (pending.isEmpty()) return
+        val gate = Semaphore(4)
+        val changed = java.util.concurrent.atomic.AtomicBoolean(false)
+        coroutineScope {
+            pending.map { (item, slug) ->
+                async(Dispatchers.IO) {
+                    val count = gate.withPermit { fetchGithubStars(slug) }
+                    if (count > item.module.stars) {
+                        withContext(Dispatchers.Main) { item.setStars(count) }
+                        changed.set(true)
+                    }
+                }
+            }.awaitAll()
+        }
+        if (changed.get() && Config.repoOrder == Config.Value.ORDER_STARS) schedulePublish()
+    }
+
+    private suspend fun fetchGithubStars(slug: String): Int {
+        return try {
+            val text = ServiceLocator.networkService.fetchString("https://api.github.com/repos/$slug")
+            JSONObject(text).optInt("stargazers_count")
+        } catch (e: Exception) {
+            Timber.w(e, "stars %s", slug)
+            0
+        }
+    }
+
+    private fun repoSlug(id: String, repoUrl: String): String? {
+        KNOWN_REPOS[id]?.let { return it }
+        return githubSlug(repoUrl)
+    }
+
+    private fun githubSlug(url: String): String? {
+        val match = GITHUB_REPO.find(url) ?: return null
+        val slug = match.groupValues[1] + "/" + match.groupValues[2].removeSuffix(".git")
+        return slug.takeIf { SLUG.matches(it) }
+    }
+
+    private suspend fun publishNow() {
         publishJob?.cancel()
         val ticket = ++publishGeneration
         val snapshot = all.toList()
         val q = query
         val order = Config.repoOrder
-        viewModelScope.launch {
-            val next = withContext(Dispatchers.Default) { arrange(snapshot, q, order) }
-            if (ticket == publishGeneration) items.update(next)
-        }
+        val next = withContext(Dispatchers.Default) { arrange(snapshot, q, order) }
+        if (ticket != publishGeneration) return
+        items.update(next)
+        showEmpty = next.isEmpty()
     }
 
     private fun arrange(
@@ -301,6 +361,7 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
                 zipUrl = zip,
                 notesUrl = obj.optString("notes_url"),
                 stars = obj.optInt("stars"),
+                repoUrl = zip,
                 source = source,
             )
         }
@@ -317,12 +378,14 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
             val latest = latestVersion(obj.optJSONArray("versions")) ?: continue
             val zip = latest.optString("zipUrl")
             if (id.isBlank() || !zip.startsWith("https://")) continue
+            val sourceUrl = obj.optJSONObject("track")?.optString("source").orEmpty()
             rows += IndexRow(
                 id = id,
                 lastUpdate = unixMillis(obj.optDouble("timestamp")),
                 zipUrl = zip,
                 notesUrl = latest.optString("changelog"),
-                stars = obj.optInt("stars"),
+                stars = if (obj.has("stars")) obj.optInt("stars") else 0,
+                repoUrl = sourceUrl.ifBlank { zip },
                 name = obj.optString("name"),
                 author = obj.optString("author"),
                 version = latest.optString("version").ifBlank { obj.optString("version") },
@@ -347,6 +410,7 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
                         zipUrl = zip,
                         notesUrl = json.optString("changelog"),
                         stars = 0,
+                        repoUrl = module.repoUrl,
                         name = module.name,
                         author = module.author,
                         version = json.optString("version"),
@@ -384,6 +448,7 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
             description = winner.description.ifBlank { other.description },
             propUrl = winner.propUrl.ifBlank { other.propUrl },
             notesUrl = winner.notesUrl.ifBlank { other.notesUrl },
+            repoUrl = winner.repoUrl.ifBlank { other.repoUrl },
         )
     }
 
@@ -531,6 +596,7 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
         val zipUrl: String,
         val notesUrl: String = "",
         val stars: Int = 0,
+        val repoUrl: String = "",
         val name: String = "",
         val author: String = "",
         val version: String = "",
@@ -550,11 +616,21 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
         val author: String,
         val description: String,
         val updateUrl: String,
+        val repoUrl: String,
     )
 
     companion object {
         private const val SOURCE_OFFICIAL = "Official"
         private val KSU_WORD = Regex("""(^|[^a-z])ksu([^a-z]|$)""")
+        private val GITHUB_REPO = Regex("""github\.com/([^/\s]+)/([^/\s#?]+)""", RegexOption.IGNORE_CASE)
+        private val SLUG = Regex("""^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$""")
+        private val KNOWN_REPOS = mapOf(
+            "zygisksu" to "LSPosed/ZygiskNext",
+            "rezygisk" to "PerformanC/ReZygisk",
+            "zygisk_vector" to "JingMatrix/Vector",
+            "playintegrityfix" to "osm0sis/PlayIntegrityFork",
+            "zygisk_lsposed" to "LSPosed/LSPosed",
+        )
         private const val MAX_DOWNLOAD = 80L * 1024L * 1024L
         private val REPOS = listOf(
             RepoSource(
@@ -575,6 +651,7 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
                 "5ec1cff, Nullptr, aviraxp",
                 "Standalone Zygisk for Magisk. Turn the built-in Zygisk switch off before use.",
                 "https://api.nullptr.icu/android/zygisk-next/static/update.json",
+                "https://github.com/LSPosed/ZygiskNext",
             ),
             FeaturedModule(
                 "rezygisk",
@@ -582,6 +659,7 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
                 "PerformanC",
                 "Standalone Zygisk for Magisk. Turn the built-in Zygisk switch off before use.",
                 "https://raw.githubusercontent.com/ThePedroo/RemoteFiles/refs/heads/main/ReZygisk/update.json",
+                "https://github.com/PerformanC/ReZygisk",
             ),
             FeaturedModule(
                 "zygisk_vector",
@@ -589,6 +667,7 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
                 "JingMatrix",
                 "Xposed-compatible framework for Magisk Zygisk.",
                 "https://raw.githubusercontent.com/JingMatrix/Vector/master/zygisk/update.json",
+                "https://github.com/JingMatrix/Vector",
             ),
             FeaturedModule(
                 "playintegrityfix",
@@ -596,6 +675,7 @@ class ModuleRepoViewModel : AsyncLoadViewModel() {
                 "osm0sis",
                 "Magisk module for Play Integrity. Replaces the unmaintained Play Integrity Fix.",
                 "https://raw.githubusercontent.com/osm0sis/PlayIntegrityFork/main/update.json",
+                "https://github.com/osm0sis/PlayIntegrityFork",
             ),
         )
     }

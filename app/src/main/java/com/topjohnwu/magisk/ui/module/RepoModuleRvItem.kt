@@ -57,6 +57,9 @@ class RepoModuleRvItem(
     @get:Bindable
     val starsLabel get() = "★ ${module.stars}"
 
+    @get:Bindable
+    val hasStars get() = module.stars > 0
+
     fun applyProp(props: Map<String, String>) {
         module.name = props["name"]?.trim()?.take(120)?.ifBlank { null } ?: module.name
         module.author = props["author"].orEmpty().trim().take(120)
@@ -72,6 +75,13 @@ class RepoModuleRvItem(
         notifyPropertyChanged(BR.hasDescription)
     }
 
+    fun setStars(stars: Int) {
+        if (stars <= module.stars) return
+        module.stars = stars
+        notifyPropertyChanged(BR.starsLabel)
+        notifyPropertyChanged(BR.hasStars)
+    }
+
     fun applyListing(lastUpdate: Long, propUrl: String, zipUrl: String, notesUrl: String, stars: Int) {
         module.lastUpdate = lastUpdate
         module.propUrl = propUrl
@@ -79,6 +89,7 @@ class RepoModuleRvItem(
         module.notesUrl = notesUrl
         module.stars = stars
         notifyPropertyChanged(BR.starsLabel)
+        notifyPropertyChanged(BR.hasStars)
     }
 
     override fun itemSameAs(other: RepoModuleRvItem) = module.id == other.module.id
