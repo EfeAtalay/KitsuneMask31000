@@ -8,6 +8,8 @@
     <string name="install">Install</string>
     <string name="section_home">Home</string>
     <string name="section_theme">Themes</string>
+    <string name="amoled_black">AMOLED</string>
+    <string name="amoled_black_summary">Use a pure black background with the selected colors</string>
     <string name="denylist">DenyList</string>
 
     <!--Home-->

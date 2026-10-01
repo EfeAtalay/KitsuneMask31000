@@ -15,9 +15,21 @@ class ThemeViewModel : BaseViewModel(), TappableHeadlineItem.Listener {
     }
 
     fun saveTheme(theme: Theme) {
+        if (theme == Theme.PiplupAmoled)
+            return
         if (!theme.isSelected) {
             Config.themeOrdinal = theme.ordinal
             RecreateEvent().publish()
         }
+    }
+
+    fun setAmoled(enabled: Boolean) {
+        val wasAmoledTheme = Theme.selected == Theme.PiplupAmoled
+        if (wasAmoledTheme)
+            Config.themeOrdinal = Theme.Piplup.ordinal
+        if (Config.amoled == enabled && !wasAmoledTheme)
+            return
+        Config.amoled = enabled
+        RecreateEvent().publish()
     }
 }

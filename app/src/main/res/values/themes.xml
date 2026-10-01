@@ -34,4 +34,14 @@
 
     <style name="ThemeOverlay.Foundation.Dialog" parent="Base.V23.ThemeOverlay.Foundation.Dialog" />
 
+    <style name="AmoledBlack">
+        <item name="colorSurface">#000000</item>
+        <item name="colorSurfaceVariant">#000000</item>
+        <item name="colorSurfaceSurfaceVariant">#111111</item>
+        <item name="android:colorBackground">#000000</item>
+        <item name="android:windowBackground">#000000</item>
+        <item name="android:statusBarColor">#000000</item>
+        <item name="android:navigationBarColor">#000000</item>
+    </style>
+
 </resources>

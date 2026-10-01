@@ -99,6 +99,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="88dp"
                 android:layout_marginTop="16dp"
+                app:cardBackgroundColor="?colorSurface"
                 app:cardCornerRadius="28dp"
                 app:cardElevation="0dp">
 
@@ -115,7 +116,7 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:background="?colorSurfaceVariant"
+                            android:background="?colorPrimaryVariant"
                             android:gravity="center_vertical"
                             android:orientation="horizontal"
                             android:paddingStart="18dp"
@@ -127,14 +128,14 @@
                                 android:background="@drawable/bg_stat_pill"
                                 android:drawablePadding="8dp"
                                 android:drawableStart="@drawable/ic_module_md2"
-                                android:drawableTint="?colorOnPrimary"
+                                android:drawableTint="?colorOnSurface"
                                 android:gravity="center_vertical"
                                 android:paddingStart="12dp"
                                 android:paddingTop="8dp"
                                 android:paddingEnd="14dp"
                                 android:paddingBottom="8dp"
                                 android:text='@{viewModel.moduleCount + "  " + @string/modules}'
-                                android:textColor="?colorOnPrimary"
+                                android:textColor="?colorOnSurface"
                                 android:textStyle="bold"
                                 tools:text="0  Modules" />
 

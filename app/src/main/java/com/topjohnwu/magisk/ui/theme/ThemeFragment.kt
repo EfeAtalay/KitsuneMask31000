@@ -10,6 +10,7 @@ import com.topjohnwu.magisk.BR
 import com.topjohnwu.magisk.R
 import com.topjohnwu.magisk.arch.BaseFragment
 import com.topjohnwu.magisk.arch.viewModel
+import com.topjohnwu.magisk.core.Config
 import com.topjohnwu.magisk.databinding.FragmentThemeMd2Binding
 import com.topjohnwu.magisk.databinding.ItemThemeBindingImpl
 
@@ -37,7 +38,7 @@ class ThemeFragment : BaseFragment<FragmentThemeMd2Binding>() {
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
 
-        for ((a, b) in Theme.values().paired()) {
+        for ((a, b) in Theme.values().filter { it != Theme.PiplupAmoled }.toTypedArray().paired()) {
             val c = inflater.inflate(R.layout.item_theme_container, null, false)
             val left = c.findViewById<FrameLayout>(R.id.left)
             val right = c.findViewById<FrameLayout>(R.id.right)
@@ -53,6 +54,15 @@ class ThemeFragment : BaseFragment<FragmentThemeMd2Binding>() {
             }
 
             binding.themeContainer.addView(c)
+        }
+
+        binding.root.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
+            R.id.amoled_switch
+        )?.apply {
+            isChecked = Config.amoled || Theme.selected == Theme.PiplupAmoled
+            setOnCheckedChangeListener { _, checked ->
+                viewModel.setAmoled(checked)
+            }
         }
 
         return binding.root

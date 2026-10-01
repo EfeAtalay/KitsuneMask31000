@@ -56,12 +56,17 @@ enum class Theme(
         val selected get() = values().getOrNull(Config.themeOrdinal) ?: Piplup
 
         fun apply(activity: android.app.Activity) {
+            val palette = if (selected == PiplupAmoled) Piplup else selected
             if (BuildConfig.STARDUST_UI) {
                 activity.setTheme(R.style.Theme_Foundation)
-                if (selected != Dynamic)
-                    activity.theme.applyStyle(selected.themeRes, true)
+                if (palette != Dynamic)
+                    activity.theme.applyStyle(palette.themeRes, true)
+                if (Config.amoled || selected == PiplupAmoled)
+                    activity.theme.applyStyle(R.style.AmoledBlack, true)
             } else {
                 activity.setTheme(selected.themeRes)
+                if (Config.amoled || selected == PiplupAmoled)
+                    activity.theme.applyStyle(R.style.AmoledBlack, true)
             }
         }
     }
