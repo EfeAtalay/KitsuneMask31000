@@ -31,6 +31,10 @@ abstract class UIActivity<Binding : ViewDataBinding> : BaseActivity(), ViewModel
 
     protected val binded get() = ::binding.isInitialized
 
+    open fun recreateKeepingScreen(keepScreen: Boolean) {
+        recreate()
+    }
+
     open val snackbarView get() = binding.root
     open val snackbarAnchorView: View? get() = null
 

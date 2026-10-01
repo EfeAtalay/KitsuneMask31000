@@ -19,7 +19,7 @@ class ThemeViewModel : BaseViewModel(), TappableHeadlineItem.Listener {
             return
         if (!theme.isSelected) {
             Config.themeOrdinal = theme.ordinal
-            RecreateEvent().publish()
+            RecreateEvent(keepScreen = false).publish()
         }
     }
 
@@ -30,6 +30,6 @@ class ThemeViewModel : BaseViewModel(), TappableHeadlineItem.Listener {
         if (Config.amoled == enabled && !wasAmoledTheme)
             return
         Config.amoled = enabled
-        RecreateEvent().publish()
+        RecreateEvent(keepScreen = true).publish()
     }
 }

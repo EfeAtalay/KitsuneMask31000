@@ -45,9 +45,9 @@ class ShowUIEvent(private val delegate: View.AccessibilityDelegate?)
     }
 }
 
-class RecreateEvent : ViewEvent(), ActivityExecutor {
+class RecreateEvent(private val keepScreen: Boolean = true) : ViewEvent(), ActivityExecutor {
     override fun invoke(activity: UIActivity<*>) {
-        activity.recreate()
+        activity.recreateKeepingScreen(keepScreen)
     }
 }
 

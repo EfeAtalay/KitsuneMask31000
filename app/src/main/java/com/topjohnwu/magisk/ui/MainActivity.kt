@@ -120,12 +120,17 @@ class MainActivity : SplashActivity<ActivityMainMd2Binding>() {
     }
 
     override fun recreate() {
+        recreateKeepingScreen(true)
+    }
+
+    override fun recreateKeepingScreen(keepScreen: Boolean) {
         val restart = Intent().setComponent(intent.component)
         if (binded) {
             val graphId = navigation.graph.id
             val ids = navigation.currentBackStack.value
                 .map { it.destination.id }
                 .filter { it != graphId }
+                .filter { keepScreen || it != R.id.themeFragment }
                 .toIntArray()
             if (ids.size > 1)
                 restart.putExtra(NAV_STACK, ids)
