@@ -61,8 +61,11 @@ enum class Theme(
                 activity.setTheme(R.style.Theme_Foundation)
                 if (palette != Dynamic)
                     activity.theme.applyStyle(palette.themeRes, true)
-                if (Config.amoled || selected == PiplupAmoled)
+                if (Config.amoled || selected == PiplupAmoled) {
                     activity.theme.applyStyle(R.style.AmoledBlack, true)
+                    if (palette == Dynamic)
+                        activity.theme.applyStyle(R.style.MaterialYouAmoled, true)
+                }
             } else {
                 activity.setTheme(selected.themeRes)
                 if (Config.amoled || selected == PiplupAmoled)

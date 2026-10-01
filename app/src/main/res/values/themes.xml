@@ -39,6 +39,12 @@
         <item name="colorSurface">#1C1B1F</item>
     </style>
 
+    <style name="MaterialYouAmoled">
+        <item name="colorSurfaceVariant">#1A1A1A</item>
+        <item name="colorSurfaceSurfaceVariant">#242424</item>
+        <item name="colorOnSurfaceVariant">#CAC4D0</item>
+    </style>
+
     <style name="AmoledBlack">
         <item name="colorSurface">#000000</item>
         <item name="colorSurfaceVariant">#000000</item>

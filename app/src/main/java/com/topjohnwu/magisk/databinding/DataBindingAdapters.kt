@@ -218,17 +218,27 @@ fun MaterialCardView.setAmoledFrame(enabled: Boolean) {
 
 @BindingAdapter("primaryShade")
 fun View.setPrimaryShade(@Suppress("UNUSED_PARAMETER") enabled: Boolean) {
-    val primary = resolveThemeColor(this, com.google.android.material.R.attr.colorPrimary) ?: return
-    setBackgroundColor(darkenColor(primary, 0.34f))
+    setBackgroundColor(uninstallFill(this))
 }
 
 @BindingAdapter("primaryShadeTint")
 fun ImageView.setPrimaryShadeTint(@Suppress("UNUSED_PARAMETER") enabled: Boolean) {
-    val primary = resolveThemeColor(this, com.google.android.material.R.attr.colorPrimary) ?: return
-    ImageViewCompat.setImageTintList(
-        this,
-        ColorStateList.valueOf(darkenColor(primary, 0.34f))
-    )
+    ImageViewCompat.setImageTintList(this, ColorStateList.valueOf(uninstallFill(this)))
+}
+
+private fun uninstallFill(view: View): Int {
+    val primary = resolveThemeColor(view, com.google.android.material.R.attr.colorPrimary)
+        ?: return 0xFF333333.toInt()
+    val dynamic = com.topjohnwu.magisk.ui.theme.Theme.selected ==
+        com.topjohnwu.magisk.ui.theme.Theme.Dynamic
+    if (dynamic) {
+        val container = resolveThemeColor(
+            view,
+            com.google.android.material.R.attr.colorPrimaryContainer
+        )
+        if (container != null) return blendColor(primary, container, 0.55f)
+    }
+    return darkenColor(primary, 0.34f)
 }
 
 @BindingAdapter("themeFrame")

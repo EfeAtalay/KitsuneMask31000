@@ -8,8 +8,11 @@
         <item name="android:statusBarColor">?colorSurface</item>
         <item name="android:windowBackground">?colorSurface</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="colorSurfaceSurfaceVariant">?colorSurfaceVariant</item>
-        <item name="colorOnPrimaryVariant">?colorOnPrimary</item>
+        <item name="colorSurfaceVariant">?colorSurfaceContainerHigh</item>
+        <item name="colorSurfaceSurfaceVariant">?colorSurfaceContainerHighest</item>
+        <item name="colorOnSurfaceVariant">?colorOutline</item>
+        <item name="colorPrimaryVariant">?colorPrimaryContainer</item>
+        <item name="colorOnPrimaryVariant">?colorOnPrimaryContainer</item>
         <item name="colorDisabled">#808080</item>
         <item name="colorDisabledVariant">#66808080</item>
     </style>
