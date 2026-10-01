@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
 import androidx.lifecycle.lifecycleScope
-import com.topjohnwu.magisk.BuildConfig
 import com.topjohnwu.magisk.R
 import com.topjohnwu.magisk.arch.UIActivity
 import com.topjohnwu.magisk.arch.viewModel
@@ -33,7 +32,7 @@ open class SuRequestActivity : UIActivity<ActivityRequestBinding>() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             window.setHideOverlayWindows(true)
         }
-        setTheme(if (BuildConfig.STARDUST_UI) R.style.Theme_Foundation else Theme.selected.themeRes)
+        Theme.apply(this)
         super.onCreate(savedInstanceState)
 
         if (intent.action == Intent.ACTION_VIEW) {

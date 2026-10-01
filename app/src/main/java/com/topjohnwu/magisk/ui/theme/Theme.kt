@@ -1,5 +1,6 @@
 package com.topjohnwu.magisk.ui.theme
 
+import com.topjohnwu.magisk.BuildConfig
 import com.topjohnwu.magisk.R
 import com.topjohnwu.magisk.core.Config
 
@@ -39,6 +40,10 @@ enum class Theme(
     Fraxure(
         themeName = "Fraxure (Legacy)",
         themeRes = R.style.ThemeFoundationMD2_Fraxure
+    ),
+    Dynamic(
+        themeName = "Material You",
+        themeRes = R.style.Theme_Foundation
     );
 
     val isSelected get() = Config.themeOrdinal == ordinal
@@ -49,6 +54,16 @@ enum class Theme(
 
     companion object {
         val selected get() = values().getOrNull(Config.themeOrdinal) ?: Piplup
+
+        fun apply(activity: android.app.Activity) {
+            if (BuildConfig.STARDUST_UI) {
+                activity.setTheme(R.style.Theme_Foundation)
+                if (selected != Dynamic)
+                    activity.theme.applyStyle(selected.themeRes, true)
+            } else {
+                activity.setTheme(selected.themeRes)
+            }
+        }
     }
 
 }

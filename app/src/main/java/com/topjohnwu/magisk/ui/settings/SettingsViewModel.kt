@@ -87,9 +87,6 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             }
         }
 
-        if (BuildConfig.STARDUST_UI)
-            list.remove(Theme)
-
         return list
     }
 

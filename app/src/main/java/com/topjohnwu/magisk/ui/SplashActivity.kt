@@ -43,7 +43,7 @@ abstract class SplashActivity<Binding : ViewDataBinding> : NavigationActivity<Bi
     private var needShowMainUI = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(if (BuildConfig.STARDUST_UI) R.style.Theme_Foundation else Theme.selected.themeRes)
+        Theme.apply(this)
 
         if (isRunningAsStub && !splashShown) {
             // Manually apply splash theme for stub
