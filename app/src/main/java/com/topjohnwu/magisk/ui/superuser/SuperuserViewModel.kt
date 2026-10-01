@@ -371,6 +371,7 @@ class SuperuserViewModel(
 
     private fun hideApp(app: GrantApp) {
         viewModelScope.launch {
+            val sulist = Info.sulist
             val message = withContext(Dispatchers.IO) {
                 val cmds = ArrayList<String>()
                 var running = false
@@ -378,8 +379,15 @@ class SuperuserViewModel(
                     val pids = runningPids(pkg)
                     if (pids.isNotEmpty()) running = true
                     pids.forEach { cmds += "magisk magiskhide revert $it" }
-                    if (!Info.sulist)
-                        cmds += hidePersistCmds(pkg)
+                    // SuList is the list of apps allowed to keep Magisk.
+                    // Hiding removes the app from that list. DenyList still adds.
+                    cmds += if (sulist) hideRemoveCmds(pkg) else hidePersistCmds(pkg)
+                }
+                if (!sulist && Config.sulist) {
+                    val sql = app.packages.joinToString("") { pkg ->
+                        "DELETE FROM sulist WHERE package_name='${sqlQuote(pkg)}';"
+                    }
+                    cmds += "magisk --sqlite \"$sql\""
                 }
                 if (cmds.isNotEmpty())
                     Shell.cmd(*cmds.toTypedArray()).exec()
@@ -389,9 +397,13 @@ class SuperuserViewModel(
                     measureHide(app.packages.first())
             }
             SnackbarEvent(message).publish()
-            if (!Info.sulist)
-                startLoading()
+            startLoading()
         }
+    }
+
+    private fun hideRemoveCmds(pkg: String): List<String> {
+        val qPkg = pkg.replace("'", "'\\''")
+        return listOf("magisk magiskhide rm '$qPkg'")
     }
 
     private fun hidePersistCmds(pkg: String): List<String> {
