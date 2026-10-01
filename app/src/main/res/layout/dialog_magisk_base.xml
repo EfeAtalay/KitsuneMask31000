@@ -159,7 +159,7 @@
             <Button
                 android:id="@+id/dialog_base_button_1"
                 style="@style/WidgetFoundation.Button.Text"
-                gone="@{data.buttonPositive.gone}"
+                gone="@{data.buttonPositive.gone || data.buttonPositive.filled}"
                 isEnabled="@{data.buttonPositive.isEnabled}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -172,6 +172,22 @@
                 app:iconGravity="textStart"
                 tools:icon="@drawable/ic_bug_md2"
                 tools:text="Button 1" />
+
+            <Button
+                android:id="@+id/dialog_base_button_confirm"
+                style="@style/WidgetFoundation.Button.Dialog"
+                gone="@{data.buttonPositive.gone || !data.buttonPositive.filled}"
+                isEnabled="@{data.buttonPositive.isEnabled}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:clickable="@{data.buttonPositive.isEnabled}"
+                android:focusable="@{data.buttonPositive.isEnabled}"
+                android:onClick="@{() -> data.buttonPositive.clicked()}"
+                android:text="@{data.buttonPositive.message}"
+                app:icon="@{data.buttonPositive.icon}"
+                app:iconGravity="textStart"
+                tools:text="Confirm" />
 
         </androidx.appcompat.widget.ButtonBarLayout>
 

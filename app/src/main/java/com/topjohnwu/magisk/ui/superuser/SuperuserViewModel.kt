@@ -33,7 +33,9 @@ import com.topjohnwu.magisk.events.AuthEvent
 import com.topjohnwu.magisk.events.SnackbarEvent
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.topjohnwu.superuser.Shell
+import com.topjohnwu.magisk.events.DialogBuilder
 import com.topjohnwu.magisk.utils.asText
+import com.topjohnwu.magisk.view.MagiskDialog
 import com.topjohnwu.magisk.view.TextItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -118,11 +120,36 @@ class SuperuserViewModel(
     }
 
     fun denyListPressed() {
-        if (suListMode) setSuList(false) else openListConfig()
+        if (suListMode) confirmSwitch(false) else openListConfig()
     }
 
     fun suListPressed() {
-        if (!suListMode) setSuList(true) else openListConfig()
+        if (!suListMode) confirmSwitch(true) else openListConfig()
+    }
+
+    private fun confirmSwitch(enableSuList: Boolean) {
+        if (enableSuList && !Config.denyList) {
+            SnackbarEvent(R.string.settings_sulist_error_magiskhide).publish()
+            return
+        }
+        object : DialogBuilder {
+            override fun build(dialog: MagiskDialog) {
+                dialog.setIcon(R.drawable.ic_warning_circle)
+                dialog.setTitle(R.string.sulist_switch_title)
+                dialog.setMessage(
+                    if (enableSuList) R.string.sulist_switch_to_sulist
+                    else R.string.sulist_switch_to_denylist
+                )
+                dialog.setButton(MagiskDialog.ButtonType.NEGATIVE) {
+                    text = android.R.string.cancel
+                }
+                dialog.setButton(MagiskDialog.ButtonType.POSITIVE) {
+                    text = R.string.confirm
+                    filled = true
+                    onClick { setSuList(enableSuList) }
+                }
+            }
+        }.show()
     }
 
     fun grantPressed() {
@@ -162,7 +189,6 @@ class SuperuserViewModel(
             Config.sulist = enabled
             viewModelScope.launch {
                 suListMode = enabled
-                SnackbarEvent(R.string.reboot_apply_change).publish()
             }
         }
     }

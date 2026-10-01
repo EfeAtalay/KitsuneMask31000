@@ -79,6 +79,7 @@ class MagiskDialog(
         var text: Any
         var isEnabled: Boolean
         var doNotDismiss: Boolean
+        var filled: Boolean
 
         fun onClick(listener: DialogButtonClickListener)
     }
@@ -111,6 +112,10 @@ class MagiskDialog(
             set(value) = set(value, field, { field = it }, BR.enabled)
 
         override var doNotDismiss = false
+
+        @get:Bindable
+        override var filled = false
+            set(value) = set(value, field, { field = it }, BR.filled)
 
         private var onClickAction: DialogButtonClickListener = {}
 
