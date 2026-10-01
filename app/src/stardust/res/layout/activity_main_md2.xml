@@ -23,7 +23,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="?colorSurface"
+            android:elevation="0dp"
             android:minWidth="88dp"
+            app:elevation="0dp"
             app:itemPaddingBottom="6dp"
             app:itemPaddingTop="6dp"
             app:labelVisibilityMode="labeled"
@@ -54,14 +56,17 @@
                 style="@style/WidgetFoundation.Appbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?colorSurface"
                 android:elevation="0dp"
                 app:elevation="0dp"
-                app:fitsSystemWindowsInsets="top">
+                app:fitsSystemWindowsInsets="top"
+                app:liftOnScroll="false">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/main_toolbar"
                     style="@style/WidgetFoundation.Toolbar"
                     android:layout_width="match_parent"
+                    android:background="?colorSurface"
                     app:layout_scrollFlags="noScroll"
                     app:subtitleTextAppearance="@style/AppearanceFoundation.Body"
                     app:titleTextAppearance="@style/AppearanceFoundation.Title"
