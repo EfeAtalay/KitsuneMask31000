@@ -39,8 +39,10 @@
                 android:text="@string/denylist"
                 android:textAllCaps="false"
                 app:cornerRadius="24dp"
-                app:icon="@drawable/ic_close_md2"
-                app:iconGravity="textStart" />
+                app:icon="@drawable/ic_eye_off"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="20dp" />
 
             <com.google.android.material.button.MaterialButton
                 style="@style/Widget.Material3.Button.UnelevatedButton"
@@ -55,8 +57,10 @@
                 android:text="@string/settings_sulist"
                 android:textAllCaps="false"
                 app:cornerRadius="24dp"
-                app:icon="@drawable/ic_superuser_md2"
-                app:iconGravity="textStart" />
+                app:icon="@drawable/ic_shield"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="20dp" />
 
         </LinearLayout>
 
@@ -75,8 +79,10 @@
             android:textColor="?colorOnPrimary"
             app:backgroundTint="?colorPrimary"
             app:cornerRadius="26dp"
-            app:icon="@drawable/ic_check_md2"
+            app:icon="@drawable/ic_person_add"
             app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconSize="20dp"
             app:iconTint="?colorOnPrimary" />
 
         <TextView
