@@ -65,15 +65,25 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_log_panel">
+            android:layout_weight="1">
 
-            <include
-                android:id="@+id/log_filter_magisk"
-                layout="@layout/include_log_magisk"
-                viewModel="@{viewModel}"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                app:cardBackgroundColor="?colorSurfaceSurfaceVariant"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp"
+                app:strokeColor="?colorOutline"
+                app:strokeWidth="1dp">
+
+                <include
+                    android:id="@+id/log_filter_magisk"
+                    layout="@layout/include_log_magisk"
+                    viewModel="@{viewModel}"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.circularreveal.cardview.CircularRevealCardView
                 android:id="@+id/log_filter"

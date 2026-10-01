@@ -21,8 +21,10 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:fillViewport="true"
-            android:paddingLeft="@dimen/l_50"
-            android:paddingRight="@dimen/l_50">
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/log_magisk"
