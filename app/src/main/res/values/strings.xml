@@ -299,6 +299,7 @@
     <string name="sulist_switch_to_denylist">Switching to DenyList takes effect after reboot. Apps not in the DenyList will be able to see root.\n\nA reboot is required.</string>
     <string name="sulist_switch_to_sulist">Switching to SuList takes effect after reboot. Only apps in the SuList will be able to see root.\n\nA reboot is required.</string>
     <string name="confirm">Confirm</string>
+    <string name="grant_empty">No apps available</string>
     <string name="home_notice_unofficial_magisk">WARNING! You are using an unofficial version of Magisk that is not officially supported by the Magisk author. This version may contain unstable modifications that could harm your device or compromise your security. Do not report any issues or request any help from official Magisk channels. If you use this version but do not know this is an unofficial version, please switch to the official Magisk at github.com/topjohnwu/Magisk</string>
 
 </resources>

@@ -260,6 +260,7 @@
     <string name="sulist_switch_to_denylist">DenyList\'e geçiş yeniden başlatmadan sonra uygulanır. DenyList\'te olmayan uygulamalar kökü görebilir.\n\nYeniden başlatma gerekir.</string>
     <string name="sulist_switch_to_sulist">SuList\'e geçiş yeniden başlatmadan sonra uygulanır. Yalnızca SuList\'teki uygulamalar kökü görebilir.\n\nYeniden başlatma gerekir.</string>
     <string name="confirm">Onayla</string>
+    <string name="grant_empty">Uygun uygulama yok</string>
     <string name="restore_app_confirmation">Bu işlem, gizli uygulamayı orijinal uygulama ile değiştirecektir. Bu işlemi yapmak istediğinizden emin misiniz?</string>
 
 </resources>

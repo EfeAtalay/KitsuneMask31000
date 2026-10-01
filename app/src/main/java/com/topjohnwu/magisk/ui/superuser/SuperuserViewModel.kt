@@ -1,11 +1,13 @@
 package com.topjohnwu.magisk.ui.superuser
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES
 import android.os.Process
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.TextView
 import androidx.databinding.Bindable
 import androidx.databinding.ObservableArrayList
 import androidx.lifecycle.viewModelScope
@@ -15,8 +17,6 @@ import com.topjohnwu.magisk.arch.AsyncLoadViewModel
 import com.topjohnwu.magisk.core.Config
 import com.topjohnwu.magisk.core.Info
 import com.topjohnwu.magisk.core.data.magiskdb.PolicyDao
-import com.topjohnwu.magisk.arch.ContextExecutor
-import com.topjohnwu.magisk.arch.ViewEvent
 import com.topjohnwu.magisk.core.di.AppContext
 import com.topjohnwu.magisk.core.di.ServiceLocator
 import com.topjohnwu.magisk.core.ktx.getLabel
@@ -32,8 +32,10 @@ import com.topjohnwu.magisk.dialog.SuperuserRevokeDialog
 import com.topjohnwu.magisk.events.BiometricEvent
 import com.topjohnwu.magisk.events.AuthEvent
 import com.topjohnwu.magisk.events.SnackbarEvent
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.topjohnwu.superuser.Shell
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.topjohnwu.magisk.events.DialogBuilder
 import com.topjohnwu.magisk.utils.asText
 import com.topjohnwu.magisk.view.MagiskDialog
@@ -160,23 +162,54 @@ class SuperuserViewModel(
     }
 
     fun grantPressed() {
-        object : ViewEvent(), ContextExecutor {
-            override fun invoke(context: Context) {
-                viewModelScope.launch {
-                    val apps = withContext(Dispatchers.IO) { grantCandidates() }
-                    if (apps.isEmpty()) {
-                        SnackbarEvent(R.string.superuser_policy_none).publish()
-                        return@launch
-                    }
-                    MaterialAlertDialogBuilder(context)
-                        .setTitle(R.string.grant)
-                        .setItems(apps.map { it.label }.toTypedArray()) { _, index ->
-                            grant(apps[index].uid)
-                        }
-                        .show()
+        object : DialogBuilder {
+            override fun build(dialog: MagiskDialog) {
+                dialog.setTitle(R.string.grant)
+                val root = LayoutInflater.from(dialog.context)
+                    .inflate(R.layout.dialog_grant, null)
+                val switch = root.findViewById<MaterialSwitch>(R.id.grant_show_system)
+                val list = root.findViewById<RecyclerView>(R.id.grant_list)
+                val empty = root.findViewById<TextView>(R.id.grant_empty)
+                val rows = ObservableArrayList<MagiskDialog.DialogItem>()
+                var apps = emptyList<GrantApp>()
+                var ticket = 0
+                list.layoutManager = LinearLayoutManager(dialog.context)
+                list.setAdapter(rows, bindExtra { extra ->
+                    extra.put(BR.listener, MagiskDialog.DialogClickListener { pos ->
+                        apps.getOrNull(pos)?.let { grant(it.uid) }
+                        dialog.dismiss()
+                    })
+                })
+                fun publish(next: List<GrantApp>) {
+                    apps = next
+                    rows.clear()
+                    rows.addAll(next.mapIndexed { index, app ->
+                        MagiskDialog.DialogItem(app.label, index)
+                    })
+                    val vacant = next.isEmpty()
+                    empty.visibility = if (vacant) View.VISIBLE else View.GONE
+                    list.visibility = if (vacant) View.GONE else View.VISIBLE
                 }
+                fun reload() {
+                    val mine = ++ticket
+                    viewModelScope.launch {
+                        val next = withContext(Dispatchers.IO) { grantCandidates() }
+                        if (mine == ticket) publish(next)
+                    }
+                }
+                switch.isChecked = showSystemApps
+                switch.setOnCheckedChangeListener { _, checked ->
+                    if (checked == showSystemApps) return@setOnCheckedChangeListener
+                    showSystemApps = checked
+                    reload()
+                }
+                dialog.setView(root)
+                dialog.setButton(MagiskDialog.ButtonType.NEGATIVE) {
+                    text = android.R.string.cancel
+                }
+                reload()
             }
-        }.publish()
+        }.show()
     }
 
     private fun openListConfig() {
