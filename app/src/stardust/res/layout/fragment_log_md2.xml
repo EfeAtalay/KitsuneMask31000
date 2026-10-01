@@ -70,10 +70,10 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:cardBackgroundColor="?colorSurfaceSurfaceVariant"
+                app:cardBackgroundColor="?colorSurface"
                 app:cardCornerRadius="28dp"
                 app:cardElevation="0dp"
-                app:strokeColor="?colorOutline"
+                app:strokeColor="?colorSurfaceVariant"
                 app:strokeWidth="1dp">
 
                 <include
