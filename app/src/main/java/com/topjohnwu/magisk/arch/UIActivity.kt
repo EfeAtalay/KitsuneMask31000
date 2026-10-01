@@ -4,8 +4,10 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.use
 import androidx.core.view.WindowCompat
@@ -86,12 +88,28 @@ abstract class UIActivity<Binding : ViewDataBinding> : BaseActivity(), ViewModel
         length: Int = Snackbar.LENGTH_SHORT,
         builder: Snackbar.() -> Unit = {}
     ) {
-        // Some palette overlays never define this, and the snackbar then
-        // kills the process while inflating.
-        theme.applyStyle(R.style.SnackbarFallbackColors, false)
-        val bar = Snackbar.make(snackbarView, message, length)
-        snackbarAnchorView?.let { bar.anchorView = it }
-        bar.apply(builder).show()
+        val parent = snackbarView
+        ensureSnackbarColors(parent)
+        try {
+            val bar = Snackbar.make(parent, message, length)
+            snackbarAnchorView?.let { bar.anchorView = it }
+            bar.apply(builder).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun ensureSnackbarColors(parent: View) {
+        val theme = parent.context.theme
+        val value = TypedValue()
+        val resolved = theme.resolveAttribute(
+            com.google.android.material.R.attr.colorOnSurface, value, true
+        )
+        val isColor = resolved &&
+            value.type >= TypedValue.TYPE_FIRST_COLOR_INT &&
+            value.type <= TypedValue.TYPE_LAST_COLOR_INT
+        if (!isColor)
+            theme.applyStyle(R.style.SnackbarFallbackColors, true)
     }
 
     override fun onResume() {
