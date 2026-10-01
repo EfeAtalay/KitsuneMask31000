@@ -270,6 +270,10 @@
     <string name="hide_now">Şimdi gizle</string>
     <string name="hide_test_running">Bakılıyor…</string>
     <string name="hide_test_closed">Uygulamayı açıp yeniden dene</string>
+    <string name="hide_mount_idle">Uygulama çalışmıyor. Bu oturumdaki bağlantılar değişmedi. Açıp Gizlemeyi test et.</string>
+    <string name="hide_result_row">%1$s artık %2$s listesinde: %3$s.\n\n%4$s</string>
+    <string name="hide_result_system_sulist">%1$s SuList\'ten çıkarıldı ve kökü kalmaz. Sistem kullanıcısını paylaştığı için Kök izinleri satırı yok.\n\n%2$s</string>
+    <string name="hide_result_system_denylist">%1$s DenyList\'e eklendi. Sistem kullanıcısını paylaştığı için Kök izinleri satırı yok.\n\n%2$s</string>
     <string name="hide_test_clean">Gizli</string>
     <string name="hide_test_traces">Magisk izi: %1$d</string>
     <string name="confirm">Onayla</string>

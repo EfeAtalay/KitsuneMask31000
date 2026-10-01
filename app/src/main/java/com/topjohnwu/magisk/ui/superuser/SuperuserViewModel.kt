@@ -392,13 +392,58 @@ class SuperuserViewModel(
                 if (cmds.isNotEmpty())
                     Shell.cmd(*cmds.toTypedArray()).exec()
                 if (!running)
-                    AppContext.getString(R.string.hide_test_closed)
+                    AppContext.getString(R.string.hide_mount_idle)
                 else
                     measureHide(app.packages.first())
             }
-            SnackbarEvent(message).publish()
-            startLoading()
+            val systemUid = app.uid == Process.SYSTEM_UID
+            if (!systemUid && db.fetch(app.uid) == null) {
+                db.update(SuPolicy(app.uid).apply {
+                    policy = SuPolicy.DENY
+                    until = 0
+                    logging = false
+                    notification = false
+                })
+            }
+            doLoadWork()
+            val note = itemsPolicies.firstOrNull { it.packageName in app.packages }?.listNote
+            hideResultDialog(app.label, sulist, systemUid, note, message)
         }
+    }
+
+    private fun hideResultDialog(
+        label: String,
+        sulist: Boolean,
+        systemUid: Boolean,
+        note: String?,
+        mounts: String
+    ) {
+        val message = if (!systemUid && !note.isNullOrEmpty())
+            AppContext.getString(
+                R.string.hide_result_row,
+                label,
+                AppContext.getString(R.string.superuser_permissions),
+                note,
+                mounts
+            )
+        else
+            AppContext.getString(
+                if (sulist) R.string.hide_result_system_sulist
+                else R.string.hide_result_system_denylist,
+                label,
+                mounts
+            )
+        object : DialogBuilder {
+            override fun build(dialog: MagiskDialog) {
+                dialog.setIcon(R.drawable.ic_check_circle_md2)
+                dialog.setTitle(R.string.hide_pick_title)
+                dialog.setMessage(message)
+                dialog.setButton(MagiskDialog.ButtonType.POSITIVE) {
+                    text = android.R.string.ok
+                    filled = true
+                }
+            }
+        }.show()
     }
 
     private fun hideRemoveCmds(pkg: String): List<String> {

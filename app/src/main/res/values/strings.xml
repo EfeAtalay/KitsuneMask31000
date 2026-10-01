@@ -309,6 +309,10 @@
     <string name="hide_now">Hide now</string>
     <string name="hide_test_running">Checking…</string>
     <string name="hide_test_closed">Open the app, then test again</string>
+    <string name="hide_mount_idle">The app is not running. Mounts in this session were not changed. Open it, then use Test hide.</string>
+    <string name="hide_result_row">%1$s is now in %2$s: %3$s.\n\n%4$s</string>
+    <string name="hide_result_system_sulist">%1$s was removed from SuList and does not keep root. It shares the system user, so it has no Root Permissions row.\n\n%2$s</string>
+    <string name="hide_result_system_denylist">%1$s was added to the DenyList. It shares the system user, so it has no Root Permissions row.\n\n%2$s</string>
     <string name="hide_test_clean">Hidden</string>
     <string name="hide_test_traces">Magisk traces: %1$d</string>
     <string name="confirm">Confirm</string>
