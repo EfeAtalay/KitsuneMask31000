@@ -10,6 +10,7 @@
 #include <base.hpp>
 #include <db.hpp>
 #include <core.hpp>
+#include <resetprop.hpp>
 
 #include "deny.hpp"
 
@@ -515,6 +516,54 @@ static void sync_external_denylist() {
     LOGI("denylist sync: sulist inverse, kept %zu\n", kept.size());
 }
 
+static void mask_prop(const char *name, const char *safe) {
+    string cur = get_prop(name);
+    if (cur.empty() || cur == safe)
+        return;
+    if (set_prop(name, safe, true) == 0)
+        LOGI("hideprop: %s [%s] -> [%s]\n", name, cur.data(), safe);
+    else
+        LOGW("hideprop: failed %s\n", name);
+}
+
+void hide_sensitive_props() {
+    // Global properties. DenyList hides listed apps; SuList denies everyone
+    // who is not on the list. Either way, apps without root must not see
+    // a debuggable or unlocked build.
+    if (!denylist_enforced && !sulist_enabled)
+        return;
+    static constexpr struct { const char *name; const char *safe; } props[] = {
+        { "ro.boot.vbmeta.device_state", "locked" },
+        { "ro.boot.verifiedbootstate", "green" },
+        { "ro.boot.flash.locked", "1" },
+        { "ro.boot.veritymode", "enforcing" },
+        { "ro.boot.warranty_bit", "0" },
+        { "ro.warranty_bit", "0" },
+        { "ro.debuggable", "0" },
+        { "ro.secure", "1" },
+        { "ro.build.type", "user" },
+        { "ro.build.tags", "release-keys" },
+        { "ro.vendor.boot.warranty_bit", "0" },
+        { "ro.vendor.warranty_bit", "0" },
+        { "vendor.boot.vbmeta.device_state", "locked" },
+        { "sys.oem_unlock_allowed", "0" },
+    };
+    for (auto &p : props)
+        mask_prop(p.name, p.safe);
+}
+
+static void drop_inactive_list() {
+    // One mode, one table. The other list is not consulted and must not
+    // keep leftover rows from the previous mode.
+    if (sulist_enabled) {
+        db_exec("DELETE FROM hidelist;");
+        LOGI("list: SuList mode, hidelist cleared\n");
+    } else if (denylist_enforced) {
+        db_exec("DELETE FROM sulist;");
+        LOGI("list: DenyList mode, sulist cleared\n");
+    }
+}
+
 static void update_deny_config() {
     char sql[64];
     sprintf(sql, "REPLACE INTO settings (key,value) VALUES('%s',%d)",
@@ -533,6 +582,8 @@ void update_sulist_config(bool enable) {
 
 int enable_deny() {
     if (denylist_enforced) {
+        hide_sensitive_props();
+        drop_inactive_list();
         return DenyResponse::OK;
     } else {
         mutex_guard lock(data_lock);
@@ -575,6 +626,8 @@ int enable_deny() {
 
     update_deny_config();
     sync_external_denylist();
+    hide_sensitive_props();
+    drop_inactive_list();
 
     return DenyResponse::OK;
 

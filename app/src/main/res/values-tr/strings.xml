@@ -257,8 +257,8 @@
     <string name="app_not_found">Bu eylemi gerçekleştirecek uygulama bulunamadı</string>
     <string name="reboot_apply_change">Değişiklikleri uygulamak için yeniden başlatın</string>
     <string name="sulist_switch_title">Mod değiştirilsin mi?</string>
-    <string name="sulist_switch_to_denylist">DenyList\'e geçiş yeniden başlatmadan sonra uygulanır. Süper Kullanıcı listesindeki tüm uygulamalar DenyList\'e eklenir, Magisk onlardan gizlenir. SuList saklanır, geri dönerseniz yine oradadır.\n\nYeniden başlatma gerekir.</string>
-    <string name="sulist_switch_to_sulist">SuList\'e geçiş yeniden başlatmadan sonra uygulanır. Kök izni verdiğiniz uygulamalar SuList\'e eklenir, kökleri kalır. SuList\'te olmayanlar kökü göremez.\n\nYeniden başlatma gerekir.</string>
+    <string name="sulist_switch_to_denylist">DenyList\'e geçiş yeniden başlatmadan sonra uygulanır. Süper Kullanıcı listesindeki tüm uygulamalar DenyList\'e eklenir ve SuList temizlenir.\n\nYeniden başlatma gerekir.</string>
+    <string name="sulist_switch_to_sulist">SuList\'e geçiş yeniden başlatmadan sonra uygulanır. Kök izni verdiğiniz uygulamalar SuList\'e eklenir. Diğerleri kökü göremez ve DenyList temizlenir.\n\nYeniden başlatma gerekir.</string>
     <string name="sulist_pending_sulist">SuList için yeniden başlatın. Geri almak için dokunun.</string>
     <string name="sulist_pending_denylist">DenyList için yeniden başlatın. Geri almak için dokunun.</string>
     <string name="sulist_edit_after_reboot">Bu listeyi düzenlemeden önce yeniden başlatın</string>

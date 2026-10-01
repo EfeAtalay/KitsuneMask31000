@@ -296,8 +296,8 @@
     <string name="settings_sulist_enforced">SuList is enforced</string>
     <string name="settings_sulist_error_magiskhide">This feature need MagiskHide to be enabled</string>
     <string name="sulist_switch_title">Switch Mode?</string>
-    <string name="sulist_switch_to_denylist">Switching to DenyList takes effect after reboot. Every app in the Superuser list is added to the DenyList, so Magisk is hidden from them. SuList is kept and returns if you switch back.\n\nA reboot is required.</string>
-    <string name="sulist_switch_to_sulist">Switching to SuList takes effect after reboot. Apps you already granted root are added to SuList so they keep it. Apps not on SuList will not be able to see root.\n\nA reboot is required.</string>
+    <string name="sulist_switch_to_denylist">Switching to DenyList takes effect after reboot. Every app in the Superuser list is added to the DenyList, and the SuList is cleared.\n\nA reboot is required.</string>
+    <string name="sulist_switch_to_sulist">Switching to SuList takes effect after reboot. Apps you already granted root are added to SuList. Everyone else cannot see root, and the DenyList is cleared.\n\nA reboot is required.</string>
     <string name="sulist_pending_sulist">Reboot to switch to SuList. Tap to undo.</string>
     <string name="sulist_pending_denylist">Reboot to switch to DenyList. Tap to undo.</string>
     <string name="sulist_edit_after_reboot">Reboot before editing this list</string>

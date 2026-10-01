@@ -182,8 +182,10 @@ class SuperuserViewModel(
                     onClick {
                         viewModelScope.launch {
                             val extra = withContext(Dispatchers.IO) {
-                                if (enableSuList) carrySql("sulist", onlyAllowed = true)
-                                else carrySql("hidelist", onlyAllowed = false)
+                                if (enableSuList)
+                                    carrySql("sulist", onlyAllowed = true) + "DELETE FROM hidelist;"
+                                else
+                                    carrySql("hidelist", onlyAllowed = false) + "DELETE FROM sulist;"
                             }
                             setSuList(enableSuList, extra)
                         }
@@ -344,12 +346,10 @@ class SuperuserViewModel(
         }
     }
 
-    // magiskhide add follows the running daemon: DenyList writes hidelist,
-    // SuList writes sulist. A SuList switch that is still waiting for reboot
-    // is also recorded in the sulist table.
+    // magiskhide add follows the running daemon only. DenyList writes
+    // hidelist. SuList writes sulist. The other table is not touched.
     private fun grantListCmds(packages: List<String>): List<String> {
         val pm = AppContext.packageManager
-        val pendingSu = !Info.sulist && Config.sulist
         val cmds = ArrayList<String>()
         for (pkg in packages) {
             val names = try {
@@ -362,8 +362,6 @@ class SuperuserViewModel(
                 val qPkg = pkg.replace("'", "'\\''")
                 val qProc = proc.replace("'", "'\\''")
                 cmds += "magisk magiskhide add '$qPkg' '$qProc'"
-                if (pendingSu)
-                    cmds += "magisk --sqlite \"INSERT OR IGNORE INTO sulist (package_name,process) VALUES('$qPkg','$qProc');\""
             }
         }
         return cmds
