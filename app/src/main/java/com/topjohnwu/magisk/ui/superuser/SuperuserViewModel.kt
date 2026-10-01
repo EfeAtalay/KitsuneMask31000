@@ -1,6 +1,7 @@
 package com.topjohnwu.magisk.ui.superuser
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES
 import android.os.Process
@@ -13,6 +14,8 @@ import com.topjohnwu.magisk.arch.AsyncLoadViewModel
 import com.topjohnwu.magisk.core.Config
 import com.topjohnwu.magisk.core.Info
 import com.topjohnwu.magisk.core.data.magiskdb.PolicyDao
+import com.topjohnwu.magisk.arch.ContextExecutor
+import com.topjohnwu.magisk.arch.ViewEvent
 import com.topjohnwu.magisk.core.di.AppContext
 import com.topjohnwu.magisk.core.di.ServiceLocator
 import com.topjohnwu.magisk.core.ktx.getLabel
@@ -28,6 +31,8 @@ import com.topjohnwu.magisk.dialog.SuperuserRevokeDialog
 import com.topjohnwu.magisk.events.BiometricEvent
 import com.topjohnwu.magisk.events.AuthEvent
 import com.topjohnwu.magisk.events.SnackbarEvent
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.topjohnwu.superuser.Shell
 import com.topjohnwu.magisk.utils.asText
 import com.topjohnwu.magisk.view.TextItem
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +58,10 @@ class SuperuserViewModel(
     @get:Bindable
     var loading = true
         private set(value) = set(value, field, { field = it }, BR.loading)
+
+    @get:Bindable
+    var suListMode = Config.sulist
+        private set(value) = set(value, field, { field = it }, BR.suListMode)
 
     @SuppressLint("InlinedApi")
     override suspend fun doLoadWork() {
@@ -104,8 +113,86 @@ class SuperuserViewModel(
             itemsHelpers.clear()
         else if (itemsHelpers.isEmpty())
             itemsHelpers.add(itemNoData)
+        suListMode = Config.sulist
         loading = false
     }
+
+    fun denyListPressed() {
+        if (suListMode) setSuList(false) else openListConfig()
+    }
+
+    fun suListPressed() {
+        if (!suListMode) setSuList(true) else openListConfig()
+    }
+
+    fun grantPressed() {
+        object : ViewEvent(), ContextExecutor {
+            override fun invoke(context: Context) {
+                viewModelScope.launch {
+                    val apps = withContext(Dispatchers.IO) { grantCandidates() }
+                    if (apps.isEmpty()) {
+                        SnackbarEvent(R.string.superuser_policy_none).publish()
+                        return@launch
+                    }
+                    MaterialAlertDialogBuilder(context)
+                        .setTitle(R.string.grant)
+                        .setItems(apps.map { it.label }.toTypedArray()) { _, index ->
+                            grant(apps[index].uid)
+                        }
+                        .show()
+                }
+            }
+        }.publish()
+    }
+
+    private fun openListConfig() {
+        SuperuserFragmentDirections.actionSuperuserFragmentToDenyFragment().navigate()
+    }
+
+    private fun setSuList(enabled: Boolean) {
+        if (enabled && !Config.denyList) {
+            SnackbarEvent(R.string.settings_sulist_error_magiskhide).publish()
+            return
+        }
+        val cmd = if (enabled) "1" else "0"
+        Shell.cmd(
+            "magisk --sqlite \"REPLACE INTO settings (key,value) VALUES('sulist',$cmd);\""
+        ).submit { result ->
+            if (!result.isSuccess) return@submit
+            Config.sulist = enabled
+            viewModelScope.launch {
+                suListMode = enabled
+                SnackbarEvent(R.string.reboot_apply_change).publish()
+            }
+        }
+    }
+
+    private fun grantCandidates(): List<GrantApp> {
+        val pm = AppContext.packageManager
+        val taken = itemsPolicies.map { it.item.uid }.toSet()
+        return pm.getInstalledApplications(0)
+            .asSequence()
+            .filter { it.uid != Process.SYSTEM_UID && it.uid != Process.myUid() }
+            .filter { it.uid !in taken }
+            .filter { pm.getLaunchIntentForPackage(it.packageName) != null }
+            .map { GrantApp(it.uid, it.loadLabel(pm).toString()) }
+            .distinctBy { it.uid }
+            .sortedBy { it.label.lowercase(currentLocale) }
+            .toList()
+    }
+
+    private fun grant(uid: Int) {
+        viewModelScope.launch {
+            val policy = SuPolicy(uid).apply {
+                this.policy = SuPolicy.ALLOW
+                until = 0
+            }
+            db.update(policy)
+            startLoading()
+        }
+    }
+
+    private data class GrantApp(val uid: Int, val label: String)
 
     // ---
 

@@ -83,6 +83,7 @@
     <string name="superuser_toggle_notification">Notifications</string>
     <string name="superuser_toggle_revoke">Revoke</string>
     <string name="superuser_policy_none">No apps have asked for Superuser permission yet.</string>
+    <string name="superuser_permissions">Root Permissions</string>
 
     <!--Logs-->
     <string name="log_data_none">You\'re log-free, try using your root apps more</string>

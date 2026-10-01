@@ -87,14 +87,29 @@
                         app:layout_constraintVertical_bias="0"
                         tools:text="com.topjohnwu.magisk" />
 
+                    <ImageView
+                        android:id="@+id/policy_trash"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/superuser_toggle_revoke"
+                        android:onClick="@{() -> item.revoke()}"
+                        android:padding="8dp"
+                        android:src="@drawable/ic_delete_md2"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="?colorOnSurfaceVariant" />
+
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/policy_indicator"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
                         android:checked="@={item.enabled}"
-                        android:layout_marginEnd="@dimen/l1"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/policy_trash"
                         app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>

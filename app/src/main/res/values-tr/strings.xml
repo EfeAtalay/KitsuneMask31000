@@ -82,6 +82,7 @@
     <string name="superuser_toggle_notification">Bildirimler</string>
     <string name="superuser_toggle_revoke">İptal et</string>
     <string name="superuser_policy_none">Henüz hiçbir uygulama Süper Kullanıcı izni istemedi.</string>
+    <string name="superuser_permissions">Kök izinleri</string>
 
     <!--Logs-->
     <string name="log_data_none">Günlük kullanmıyorsunuz, kök uygulamalarınızı daha fazla kullanmayı deneyin</string>

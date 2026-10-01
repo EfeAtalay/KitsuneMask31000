@@ -216,6 +216,24 @@ fun MaterialCardView.setAmoledFrame(enabled: Boolean) {
     }
 }
 
+@BindingAdapter("pillSelected")
+fun MaterialButton.setPillSelected(selected: Boolean) {
+    val fill = if (selected) {
+        resolveThemeColor(this, com.google.android.material.R.attr.colorPrimary)
+    } else {
+        resolveThemeColor(this, R.attr.colorSurfaceVariant)
+            ?: resolveThemeColor(this, com.google.android.material.R.attr.colorSurface)
+    } ?: return
+    val ink = if (selected) {
+        resolveThemeColor(this, com.google.android.material.R.attr.colorOnPrimary)
+    } else {
+        resolveThemeColor(this, com.google.android.material.R.attr.colorOnSurface)
+    } ?: return
+    backgroundTintList = ColorStateList.valueOf(fill)
+    setTextColor(ink)
+    iconTint = ColorStateList.valueOf(ink)
+}
+
 @BindingAdapter("primaryShade")
 fun View.setPrimaryShade(@Suppress("UNUSED_PARAMETER") enabled: Boolean) {
     setBackgroundColor(uninstallFill(this))

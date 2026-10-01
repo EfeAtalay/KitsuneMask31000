@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.topjohnwu.magisk.ui.superuser.SuperuserViewModel" />
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/internal_action_bar_size"
+        app:fitsSystemWindowsInsets="top|bottom">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.UnelevatedButton"
+                pillSelected="@{!viewModel.suListMode}"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:onClick="@{() -> viewModel.denyListPressed()}"
+                android:text="@string/denylist"
+                android:textAllCaps="false"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_close_md2"
+                app:iconGravity="textStart" />
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.UnelevatedButton"
+                pillSelected="@{viewModel.suListMode}"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:onClick="@{() -> viewModel.suListPressed()}"
+                android:text="@string/settings_sulist"
+                android:textAllCaps="false"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_superuser_md2"
+                app:iconGravity="textStart" />
+
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.Material3.Button.UnelevatedButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:onClick="@{() -> viewModel.grantPressed()}"
+            android:text="@string/grant"
+            android:textAllCaps="false"
+            android:textColor="?colorOnPrimary"
+            app:backgroundTint="?colorPrimary"
+            app:cornerRadius="26dp"
+            app:icon="@drawable/ic_check_md2"
+            app:iconGravity="textStart"
+            app:iconTint="?colorOnPrimary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/superuser_permissions"
+            android:textColor="?colorPrimary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/superuser_list"
+                gone="@{viewModel.loading}"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:paddingBottom="24dp"
+                app:extraBindings="@{viewModel.extraBindings}"
+                app:fitsSystemWindowsInsets="bottom"
+                app:items="@{viewModel.items}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_policy_md2" />
+
+            <LinearLayout
+                goneUnless="@{viewModel.loading}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical"
+                tools:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loading"
+                    android:textAppearance="@style/AppearanceFoundation.Title"
+                    android:textStyle="bold" />
+
+                <ProgressBar
+                    style="@style/WidgetFoundation.ProgressBar.Indeterminate"
+                    android:layout_marginTop="@dimen/l1" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</layout>
