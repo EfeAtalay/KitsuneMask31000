@@ -1,0 +1,6 @@
+id=digest_align
+name=VBMeta digest align
+version=v1
+versionCode=1
+author=kitsune
+description=Fills the empty vbmeta digest with the attested all-zero boot hash.
